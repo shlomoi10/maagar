@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Website</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js"></script>
+</head>
+<body>
+    <!-- תוכן האתר שלך -->
+
+    <h1>Page Views: <span id="page-views">Loading...</span></h1>
+    <button id="click-button">Click me</button>
+    <p>Button Clicks: <span id="button-clicks">Loading...</span></p>
+
+    <script>
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyA2Br-iH2F_euVACltq197SA1W0op789OY",
+  authDomain: "navi-427811.firebaseapp.com",
+  projectId: "navi-427811",
+  storageBucket: "navi-427811.appspot.com",
+  messagingSenderId: "521226334331",
+  appId: "1:521226334331:web:2318d8e57403a6684032de",
+  measurementId: "G-L5F9KD2E5F"
+};
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Increment page views
+        const pageViewsRef = db.collection('counts').doc('page_views');
+        pageViewsRef.get().then((doc) => {
+            if (doc.exists) {
+                pageViewsRef.update({ count: firebase.firestore.FieldValue.increment(1) });
+            } else {
+                pageViewsRef.set({ count: 1 });
+            }
+        }).catch((error) => {
+            console.error("Error getting document: ", error);
+        });
+
+        // Display page views
+        pageViewsRef.onSnapshot((doc) => {
+            if (doc.exists) {
+                document.getElementById('page-views').innerText = doc.data().count;
+            }
+        });
+
+        // Increment button clicks
+        const buttonClicksRef = db.collection('counts').doc('button_clicks');
+        document.getElementById('click-button').addEventListener('click', () => {
+            buttonClicksRef.get().then((doc) => {
+                if (doc.exists) {
+                    buttonClicksRef.update({ count: firebase.firestore.FieldValue.increment(1) });
+                } else {
+                    buttonClicksRef.set({ count: 1 });
+                }
+            }).catch((error) => {
+                console.error("Error getting document: ", error);
+            });
+        });
+
+        // Display button clicks
+        buttonClicksRef.onSnapshot((doc) => {
+            if (doc.exists) {
+                document.getElementById('button-clicks').innerText = doc.data().count;
+            }
+        });
+    </script>
+</body>
+</html>
