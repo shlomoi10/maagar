@@ -21,7 +21,7 @@
         form {
             margin-bottom: 20px;
             display: inline-block;
-            text-align: right;
+            text-align:center;
         }
 
         label {
@@ -56,7 +56,7 @@
             margin-top: 20px;
             border-radius: 10px;
             background-color: #f9f9f9;
-            text-align: right;
+            text-align: center;
             width: 40%;
             margin-left: auto;
             margin-right: auto;
@@ -66,7 +66,7 @@
         .result-item {
             margin-top: 5px;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
         }
 
@@ -82,18 +82,21 @@
             justify-content: center;
         }
 
-            .copy-button .copy-notification {
-                display: none;
-                position: absolute;
-                top: -20px;
-                right: 0;
-                color: #4CAF50;
-                font-size: 16px;
+        .copy-notification {
+            display: none;
+            margin-left: 5px;
+            color: #4CAF50;
+            font-size: 16px;
+        }
+
+            .copy-notification.show {
+                display: inline;
             }
 
-                .copy-button .copy-notification.show {
-                    display: inline;
-                }
+        .result-text {
+            flex: 1;
+            text-align: center;
+        }
     </style>
     <script>
         function calculate() {
@@ -147,8 +150,10 @@
         function showCopyNotification(button) {
             const notification = button.querySelector('.copy-notification');
             notification.classList.add('show');
+            button.innerText = 'הועתק ✔';
             setTimeout(() => {
                 notification.classList.remove('show');
+                button.innerText = 'העתק';
             }, 2000);
         }
     </script>
@@ -165,42 +170,42 @@
     <div id="results" class="results">
         <h2>תוצאות</h2>
         <div class="result-item">
-            ריבית חודשית מותאמת: <span id="monthlyRate"></span>
+            <div class="result-text">ריבית חודשית מותאמת: <span id="monthlyRate"></span></div>
             <button class="copy-button" onclick="copyToClipboard(document.getElementById('monthlyRate').innerText, this)">
                 העתק
                 <span class="copy-notification">✔</span>
             </button>
         </div>
         <div class="result-item">
-            גובה כל תשלום: ₪<span id="monthlyPayment"></span>
+            <div class="result-text">גובה כל תשלום: ₪<span id="monthlyPayment"></span></div>
             <button class="copy-button" onclick="copyToClipboard(document.getElementById('monthlyPayment').innerText, this)">
                 העתק
                 <span class="copy-notification">✔</span>
             </button>
         </div>
         <div class="result-item">
-            סכום כולל תשלומים: ₪<span id="totalPayment"></span>
+            <div class="result-text">סכום כולל תשלומים: ₪<span id="totalPayment"></span></div>
             <button class="copy-button" onclick="copyToClipboard(document.getElementById('totalPayment').innerText, this)">
                 העתק
                 <span class="copy-notification">✔</span>
             </button>
         </div>
         <div class="result-item">
-            תוספת: ₪<span id="additionalAmount"></span>
+            <div class="result-text">תוספת: ₪<span id="additionalAmount"></span></div>
             <button class="copy-button" onclick="copyToClipboard(document.getElementById('additionalAmount').innerText, this)">
                 העתק
                 <span class="copy-notification">✔</span>
             </button>
         </div>
         <div class="result-item">
-            עמלת סליקה 1%: ₪<span id="commission"></span>
+            <div class="result-text">עמלת סליקה 1%: ₪<span id="commission"></span></div>
             <button class="copy-button" onclick="copyToClipboard(document.getElementById('commission').innerText, this)">
                 העתק
                 <span class="copy-notification">✔</span>
             </button>
         </div>
         <div class="result-item">
-            הסכום המחושב בפועל: ₪<span id="finalAmount"></span>
+            <div class="result-text">הסכום המחושב בפועל: ₪<span id="finalAmount"></span></div>
             <button class="copy-button" onclick="copyToClipboard(document.getElementById('finalAmount').innerText, this)">
                 העתק
                 <span class="copy-notification">✔</span>
