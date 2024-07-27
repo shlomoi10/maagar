@@ -1,70 +1,211 @@
 <!DOCTYPE html>
-<html>
+<html lang="he">
 <head>
-    <title>My Webste with Firebase</title>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>עמלות תשלומים אשראי וצ'קים</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Heebo', sans-serif;
+            direction: rtl;
+            text-align: center;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 20px;
+            display: inline-block;
+            text-align: right;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input[type="number"] {
+            padding: 5px;
+            width: 150px;
+            margin-top: 5px;
+        }
+
+        button {
+            font-family: 'Heebo', sans-serif;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background-color: #45a049;
+            }
+
+        .results {
+            display: none;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 20px;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            text-align: right;
+            width: 40%;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-item {
+            margin-top: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .copy-button {
+            background-color: #ddd;
+            border: none;
+            cursor: pointer;
+            padding: 2px 5px;
+            margin-left: 10px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .copy-button .copy-notification {
+                display: none;
+                position: absolute;
+                top: -20px;
+                right: 0;
+                color: #4CAF50;
+                font-size: 16px;
+            }
+
+                .copy-button .copy-notification.show {
+                    display: inline;
+                }
+    </style>
+    <script>
+        function calculate() {
+            const amount = parseFloat(document.getElementById('amount').value);
+            const payments = parseInt(document.getElementById('payments').value);
+            const annualRate = 7.40 / 100;  // 7.40% annual rate
+
+            // Calculate monthly rate
+            const monthlyRate = Math.pow((annualRate + 1), (1 / 12)) - 1;
+
+            // Calculate monthly payment
+            const monthlyPayment = -PMT(monthlyRate, payments, amount);
+
+            // Calculate total payment
+            const totalPayment = monthlyPayment * payments;
+
+            // Calculate additional amount
+            const additionalAmount = totalPayment + amount;
+
+            // Calculate 1% commission
+            const commission = totalPayment / 100;
+
+            // Calculate final amount
+            const finalAmount = commission + totalPayment;
+
+            // Display results
+            document.getElementById('monthlyRate').innerText = (monthlyRate * 100).toFixed(2) + '%';
+            document.getElementById('monthlyPayment').innerText = Math.abs(monthlyPayment.toFixed(2));
+            document.getElementById('totalPayment').innerText = Math.abs(totalPayment.toFixed(2));
+            document.getElementById('additionalAmount').innerText = Math.abs(additionalAmount.toFixed(2));
+            document.getElementById('commission').innerText = Math.abs(commission.toFixed(2));
+            document.getElementById('finalAmount').innerText = Math.abs(finalAmount.toFixed(2));
+
+            // Show results
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function PMT(rate, nper, pv) {
+            return (rate * pv) / (1 - Math.pow(1 + rate, -nper));
+        }
+
+        async function copyToClipboard(value, button) {
+            try {
+                await navigator.clipboard.writeText(value);
+                showCopyNotification(button);
+            } catch (err) {
+                console.error('Failed to copy: ', err);
+            }
+        }
+
+        function showCopyNotification(button) {
+            const notification = button.querySelector('.copy-notification');
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2000);
+        }
+    </script>
 </head>
 <body>
-    <h1>Page Views: <span id="page-views">Loading...</span></h1>
-    <button id="like-button">Like</button>
-    <p>Button Clicks: <span id="button-clicks">Loading...</span></p>
-
-    <script>
-        // Firebase configuration
-        var firebaseConfig = {
-            apiKey: "AIzaSyDDAAHns-YX7Xib1Vc-bUAsVHFwqs3_aUU",
-            authDomain: "mone-d0a3b.firebaseapp.com",
-            projectId: "mone-d0a3b",
-            storageBucket: "mone-d0a3b.appspot.com",
-            messagingSenderId: "1075023789417",
-            appId: "1:1075023789417:web:f66ae8ded53dad2c8851f8",
-            measurementId: "G-EPK029490R"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        var db = firebase.firestore();
-
-        // Increment page views
-        var pageViewsRef = db.collection('counts').doc('page_views');
-        pageViewsRef.get().then(function(doc) {
-            if (doc.exists) {
-                pageViewsRef.update({ count: firebase.firestore.FieldValue.increment(1) });
-            } else {
-                pageViewsRef.set({ count: 1 });
-            }
-        }).catch(function(error) {
-            console.error("Error getting document: ", error);
-        });
-
-        // Display page views
-        pageViewsRef.onSnapshot(function(doc) {
-            if (doc.exists) {
-                document.getElementById('page-views').innerText = doc.data().count;
-            }
-        });
-
-        // Increment button clicks
-        var buttonClicksRef = db.collection('counts').doc('like_button_clicked');
-        document.getElementById('like-button').addEventListener('click', function() {
-            buttonClicksRef.get().then(function(doc) {
-                if (doc.exists) {
-                    buttonClicksRef.update({ count: firebase.firestore.FieldValue.increment(1) });
-                } else {
-                    buttonClicksRef.set({ count: 1 });
-                }
-            }).catch(function(error) {
-                console.error("Error getting document: ", error);
-            });
-        });
-
-        // Display button clicks
-        buttonClicksRef.onSnapshot(function(doc) {
-            if (doc.exists) {
-                document.getElementById('button-clicks').innerText = doc.data().count;
-            }
-        });
-    </script>
+    <h1>עמלות תשלומים אשראי וצ'קים</h1>
+    <form onsubmit="calculate(); return false;">
+        <label for="amount">סכום קנייה:</label>
+        <input type="number" id="amount" required><br>
+        <label for="payments">תשלומים:</label>
+        <input type="number" id="payments" required><br>
+        <button type="submit">חשב</button>
+    </form>
+    <div id="results" class="results">
+        <h2>תוצאות</h2>
+        <div class="result-item">
+            ריבית חודשית מותאמת: <span id="monthlyRate"></span>
+            <button class="copy-button" onclick="copyToClipboard(document.getElementById('monthlyRate').innerText, this)">
+                העתק
+                <span class="copy-notification">✔</span>
+            </button>
+        </div>
+        <div class="result-item">
+            גובה כל תשלום: ₪<span id="monthlyPayment"></span>
+            <button class="copy-button" onclick="copyToClipboard(document.getElementById('monthlyPayment').innerText, this)">
+                העתק
+                <span class="copy-notification">✔</span>
+            </button>
+        </div>
+        <div class="result-item">
+            סכום כולל תשלומים: ₪<span id="totalPayment"></span>
+            <button class="copy-button" onclick="copyToClipboard(document.getElementById('totalPayment').innerText, this)">
+                העתק
+                <span class="copy-notification">✔</span>
+            </button>
+        </div>
+        <div class="result-item">
+            תוספת: ₪<span id="additionalAmount"></span>
+            <button class="copy-button" onclick="copyToClipboard(document.getElementById('additionalAmount').innerText, this)">
+                העתק
+                <span class="copy-notification">✔</span>
+            </button>
+        </div>
+        <div class="result-item">
+            עמלת סליקה 1%: ₪<span id="commission"></span>
+            <button class="copy-button" onclick="copyToClipboard(document.getElementById('commission').innerText, this)">
+                העתק
+                <span class="copy-notification">✔</span>
+            </button>
+        </div>
+        <div class="result-item">
+            הסכום המחושב בפועל: ₪<span id="finalAmount"></span>
+            <button class="copy-button" onclick="copyToClipboard(document.getElementById('finalAmount').innerText, this)">
+                העתק
+                <span class="copy-notification">✔</span>
+            </button>
+        </div>
+    </div>
 </body>
 </html>
