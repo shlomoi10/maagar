@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>עמלות תשלומים אשראי וצ'קים</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Heebo', sans-serif;
+            direction: rtl;
+            text-align: center;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 20px;
+            display: inline-block;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input[type="number"] {
+            padding: 5px;
+            width: 150px;
+            margin-top: 5px;
+        }
+
+        button {
+            font-family: 'Heebo', sans-serif;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background-color: #45a049;
+            }
+
+        .results {
+            display: none;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 20px;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            text-align: center;
+            width: 60%;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-item {
+            margin-top: 5px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        .copy-button {
+            background-color: #ddd;
+            border: none;
+            cursor: pointer;
+            padding: 2px 5px;
+            margin-left: 10px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .copy-notification {
+            display: none;
+            margin-left: 5px;
+            color: #4CAF50;
+            font-size: 16px;
+        }
+
+            .copy-notification.show {
+                display: inline;
+            }
+
+        .result-text {
+            flex: 1;
+            text-align: center;
+        }
+
+        .container {
+            margin: 20px;
+        }
+
+        .result {
+            border: 1px solid #000;
+            padding: 10px;
+            margin-top: 20px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+            .row label {
+                margin: 0 10px;
+            }
+
+        .delete-button {
+            background-color: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+            padding: 2px 5px;
+        }
+    </style>
+    <script>
+        function addRow() {
+            const rowsContainer = document.getElementById('rowsContainer');
+            const row = document.createElement('div');
+            row.className = 'row';
+            row.innerHTML = `
+                        <label>תשלום: <input type="number" class="payment"></label>
+                        <label>סכום: <input type="number" class="amount"></label>
+                        <button class="delete-button" onclick="deleteRow(this)">X</button>
+                    `;
+            rowsContainer.appendChild(row);
+        }
+
+        function createRows() {
+            const numChecks = document.getElementById('numChecks').value;
+            const rowsContainer = document.getElementById('rowsContainer');
+            const currentRows = rowsContainer.getElementsByClassName('row').length;
+            if (numChecks > currentRows) {
+                for (let i = currentRows; i < numChecks; i++) {
+                    addRow();
+                }
+            } else if (numChecks < currentRows) {
+                for (let i = currentRows; i > numChecks; i--) {
+                    rowsContainer.removeChild(rowsContainer.lastChild);
+                }
+            }
+        }
+
+        function deleteRow(button) {
+            const row = button.parentNode;
+            row.parentNode.removeChild(row);
+        }
+
+        function calculateTotal() {
+            const payments = document.getElementsByClassName('payment');
+            const amounts = document.getElementsByClassName('amount');
+            const totals = {};
+            let totalAmountSum = 0;
+            let totalAdditionalSum = 0;
+
+            for (let i = 0; i < payments.length; i++) {
+                const payment = payments[i].value;
+                const amount = parseFloat(amounts[i].value);
+                if (!isNaN(amount)) {
+                    if (!totals[payment]) {
+                        totals[payment] = 0;
+                    }
+                    totals[payment] += amount;
+                    totalAmountSum += amount;
+                }
+            }
+
+            const resultContainer = document.getElementById('resultContainer');
+            resultContainer.innerHTML = '';
+            for (const payment in totals) {
+                totalAdditionalSum += calculatePaymentDetails(totals[payment], payment);
+            }
+
+            // סיכום
+            const summary = `
+                        <h3>לסיכום</h3>
+                        <div class="result-item">
+                            <div class="result-text">סך סכום הצ'קים: ₪<span id="totalAmountSum">${totalAmountSum.toFixed(2)}</span></div>
+                            <button class="copy-button" onclick="copyToClipboard('${totalAmountSum.toFixed(2)}', this)">
+                                העתק
+                                <span class="copy-notification">✔</span>
+                            </button>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-text">סך התוספות: ₪<span id="totalAdditionalSum">${(totalAdditionalSum - totalAdditionalSum - totalAdditionalSum).toFixed(2)}</span></div>
+                            <button class="copy-button" onclick="copyToClipboard('${(totalAdditionalSum - totalAdditionalSum - totalAdditionalSum).toFixed(2)}', this)">
+                                העתק
+                                <span class="copy-notification">✔</span>
+                            </button>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-text">סך הצ'קים והתוספות ביחד:  ₪<span id="finalSum">${((totalAdditionalSum - totalAdditionalSum - totalAdditionalSum) + totalAmountSum).toFixed(2)}</span></div>
+                            <button class="copy-button" onclick="copyToClipboard('${((totalAdditionalSum - totalAdditionalSum - totalAdditionalSum) + totalAmountSum).toFixed(2)}', this)">
+                                העתק
+                                <span class="copy-notification">✔</span>
+                            </button>
+                        </div>
+                    `;
+            resultContainer.innerHTML += summary;
+
+            // Show results
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function calculatePaymentDetails(amount, payments) {
+            const annualRate = 7.40 / 100;  // 7.40% annual rate
+
+            // Calculate monthly rate
+            const monthlyRate = Math.pow((annualRate + 1), (1 / 12)) - 1;
+
+            // Calculate monthly payment
+            const monthlyPayment = -PMT(monthlyRate, payments, amount);
+
+            // Calculate total payment
+            const totalPayment = monthlyPayment * payments;
+
+            // Calculate additional amount
+            const additionalAmount = totalPayment + amount;
+
+            // Calculate 1% commission
+            const commission = totalPayment / 100;
+
+            // Calculate final amount
+            const finalAmount = commission + totalPayment;
+
+            // Display results
+            const resultContainer = document.getElementById('resultContainer');
+            const detailsContainer = document.createElement('div');
+            detailsContainer.innerHTML = `
+                        <h3>תוצאות לתשלום ${payments} עבור סכום ${amount}₪</h3>
+                        <div class="result-item">
+                            <div class="result-text">ריבית חודשית מותאמת: <span id="monthlyRate${payments}${amount}">${(monthlyRate * 100).toFixed(2)}%</span></div>
+                            <button class="copy-button" onclick="copyToClipboard(document.getElementById('monthlyRate${payments}${amount}').innerText, this)">
+                                העתק
+                                <span class="copy-notification">✔</span>
+                            </button>
+                        </div>
+                        <div class="result-item" style="display: none;">
+                            <div class="result-text">גובה כל תשלום: ₪<span id="monthlyPayment${payments}${amount}">${Math.abs(monthlyPayment.toFixed(2))}</span></div>
+                            <button class="copy-button" onclick="copyToClipboard(document.getElementById('monthlyPayment${payments}${amount}').innerText, this)">
+                                העתק
+                                <span class="copy-notification">✔</span>
+                            </button>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-text">סכום כולל תשלומים: ₪<span id="totalPayment${payments}${amount}">${Math.abs(totalPayment.toFixed(2))}</span></div>
+                            <button class="copy-button" onclick="copyToClipboard(document.getElementById('totalPayment${payments}${amount}').innerText, this)">
+                                העתק
+                                <span class="copy-notification">✔</span>
+                            </button>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-text">תוספת: ₪<span id="additionalAmount${payments}${amount}">${Math.abs(additionalAmount.toFixed(2))}</span></div>
+                            <button class="copy-button" onclick="copyToClipboard(document.getElementById('additionalAmount${payments}${amount}').innerText, this)">
+                                העתק
+                                <span class="copy-notification">✔</span>
+                            </button>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-text">עמלת סליקה 1%: ₪<span id="commission${payments}${amount}">${Math.abs(commission.toFixed(2))}</span></div>
+                            <button class="copy-button" onclick="copyToClipboard(document.getElementById('commission${payments}${amount}').innerText, this)">
+                                העתק
+                                <span class="copy-notification">✔</span>
+                            </button>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-text">הסכום המחושב בפועל: ₪<span id="finalAmount${payments}${amount}">${Math.abs(finalAmount.toFixed(2))}</span></div>
+                            <button class="copy-button" onclick="copyToClipboard(document.getElementById('finalAmount${payments}${amount}').innerText, this)">
+                                העתק
+                                <span class="copy-notification">✔</span>
+                            </button>
+                        </div>
+                    `;
+            resultContainer.appendChild(detailsContainer);
+
+            return additionalAmount;
+        }
+
+        function PMT(rate, nper, pv) {
+            return (rate * pv) / (1 - Math.pow(1 + rate, -nper));
+        }
+
+        async function copyToClipboard(value, button) {
+            try {
+                await navigator.clipboard.writeText(value);
+                showCopyNotification(button);
+            } catch (err) {
+                console.error('Failed to copy: ', err);
+            }
+        }
+
+        function showCopyNotification(button) {
+            const notification = button.querySelector('.copy-notification');
+            notification.classList.add('show');
+            button.innerText = 'הועתק ✔';
+            setTimeout(() => {
+                notification.classList.remove('show');
+                button.innerText = 'העתק';
+            }, 2000);
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>עמלות תשלומים אשראי וצ'קים</h1>
+        <label for="numChecks">מספר צ'קים:</label>
+        <input type="number" id="numChecks" min="1" onchange="createRows()">
+        <div id="rowsContainer">
+            <div class="row">
+                <label>תשלום: <input type="number" class="payment"></label>
+                <label>סכום: <input type="number" class="amount"></label>
+                <button class="delete-button" onclick="deleteRow(this)">X</button>
+            </div>
+        </div>
+        <button onclick="addRow()">הוסף תשלום</button>
+        <button onclick="calculateTotal()">חשב</button>
+        <div id="results" class="results">
+            <h2>תוצאות</h2>
+            <div id="resultContainer"></div>
+        </div>
+    </div>
+</body>
+</html>
