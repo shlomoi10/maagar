@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>עמלות תשלומים אשראי וצ'קים</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Heebo', sans-serif;
+            direction: rtl;
+            text-align: center;
+            margin: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 20px;
+            display: inline-block;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input[type="number"] {
+            padding: 5px;
+            width: 150px;
+            margin-top: 5px;
+        }
+
+        button {
+            font-family: 'Heebo', sans-serif;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background-color: #45a049;
+            }
+
+        .results {
+            display: none;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 20px;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            text-align: center;
+            width: 40%;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-item {
+            margin-top: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .copy-button {
+            background-color: #ddd;
+            border: none;
+            cursor: pointer;
+            padding: 2px 5px;
+            margin-left: 10px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .copy-notification {
+            display: none;
+            margin-left: 5px;
+            color: #4CAF50;
+            font-size: 16px;
+        }
+
+            .copy-notification.show {
+                display: inline;
+            }
+
+        .result-text {
+            flex: 1;
+            text-align: center;
+        }
+    </style>
+    <script>
+        function updateValues() {
+            let amount = parseFloat(document.getElementById("amount").value) || 0;
+            let months = parseFloat(document.getElementById("months").value) || 0;
+            let interest = 0.006;
+
+            let interestAmount = amount * interest * months;
+            let totalAmount = amount + interestAmount;
+            let collectionFee = amount / 100;
+            let finalAmount = totalAmount + collectionFee;
+
+            document.getElementById("interestAmount").textContent = interestAmount.toFixed(2);
+            document.getElementById("totalAmount").textContent = totalAmount.toFixed(2);
+            document.getElementById("collectionFee").textContent = collectionFee.toFixed(2);
+            document.getElementById("finalAmount").textContent = finalAmount.toFixed(2);
+            document.getElementById("results").style.display = 'block';
+        }
+
+        async function copyToClipboard(value, button) {
+            try {
+                await navigator.clipboard.writeText(value);
+                showCopyNotification(button);
+            } catch (err) {
+                console.error('Failed to copy: ', err);
+            }
+        }
+
+        function showCopyNotification(button) {
+            const notification = button.querySelector('.copy-notification');
+            notification.classList.add('show');
+            button.innerText = 'הועתק ✔';
+            setTimeout(() => {
+                notification.classList.remove('show');
+                button.innerText = 'העתק';
+            }, 2000);
+        }
+    </script>
+</head>
+<body>
+    <h1>עמלות תשלומים אשראי וצ'קים</h1>
+    <form onsubmit="updateValues(); return false;">
+        <label for="amount">הזן את הסכום המשולם:</label>
+        <input type="number" id="amount" placeholder="הזן את הסכום המשולם"><br>
+        <label for="months">הזן את מספר החודשים:</label>
+        <input type="number" id="months" placeholder="הזן את מספר החודשים"><br>
+        <button type="submit">חשב</button>
+    </form>
+    <div id="results" class="results">
+        <h2>תוצאות</h2>
+        <div class="result-item">
+            <div class="result-text">סכום ההתפשרות [ריבית]: <span>0.006</span></div>
+        </div>
+        <div class="result-item">
+            <div class="result-text">סה"כ תוספת: ₪<span id="interestAmount">0.00</span></div>
+            <button class="copy-button" onclick="copyToClipboard(document.getElementById('interestAmount').innerText, this)">
+                העתק
+                <span class="copy-notification">✔</span>
+            </button>
+        </div>
+        <div class="result-item">
+            <div class="result-text">הסכום המחושב בפועל: ₪<span id="totalAmount">0.00</span></div>
+            <button class="copy-button" onclick="copyToClipboard(document.getElementById('totalAmount').innerText, this)">
+                העתק
+                <span class="copy-notification">✔</span>
+            </button>
+        </div>
+        <div class="result-item">
+            <div class="result-text">עמלת סליקה: ₪<span id="collectionFee">0.00</span></div>
+            <button class="copy-button" onclick="copyToClipboard(document.getElementById('collectionFee').innerText, this)">
+                העתק
+                <span class="copy-notification">✔</span>
+            </button>
+        </div>
+        <div class="result-item">
+            <div class="result-text">הסכום המחושב בפועל: ₪<span id="finalAmount">0.00</span></div>
+            <button class="copy-button" onclick="copyToClipboard(document.getElementById('finalAmount').innerText, this)">
+                העתק
+                <span class="copy-notification">✔</span>
+            </button>
+        </div>
+    </div>
+</body>
+</html>
