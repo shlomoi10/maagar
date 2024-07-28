@@ -1,22 +1,50 @@
 <!DOCTYPE html>
-<html>
+<html lang="he">
 <head>
     <meta charset="UTF-8">
-    <title>חישובים </title>
+    <title>חישובים</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap');
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Heebo', sans-serif;
             text-align: center;
-            margin-top: 50px;
+            background-color: #f4f4f4;
+            padding: 20px;
+            color: #333;
+            margin: 0;
         }
+
+        h1 {
+            font-size: 32px;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+
         button {
-            display: block;
-            width: 200px;
-            padding: 10px;
-            margin: 10px auto;
-            font-size: 16px;
+            display: inline-block;
+            width: 250px;
+            padding: 15px;
+            margin: 15px 10px;
+            font-size: 18px;
+            font-weight: bold;
             cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            transition: background-color 0.3s, transform 0.2s;
         }
+
+            button:hover {
+                background-color: #45a049;
+                transform: translateY(-2px);
+            }
+
+            button:active {
+                background-color: #388e3c;
+                transform: translateY(0);
+            }
     </style>
 </head>
 <body>
