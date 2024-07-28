@@ -6,6 +6,39 @@
     <title>עמלות תשלומים אשראי וצ'קים</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap');
+        .tab-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            justify-content: center;
+        }
+
+            .tab-buttons button {
+                padding: 10px 20px;
+                cursor: pointer;
+                border: none;
+                background-color: #e0e0e0;
+                margin: 0 5px;
+                font-size: 16px;
+                font-weight: bold;
+                color: #555;
+                transition: background-color 0.3s, color 0.3s;
+                border-radius: 8px 8px 0 0;
+            }
+
+                .tab-buttons button.active {
+                    background-color: #4CAF50;
+                    color: white;
+                }
+
+                .tab-buttons button:hover:not(.active) {
+                    background-color: #cccccc;
+                }
 
         body {
             font-family: 'Heebo', sans-serif;
@@ -21,7 +54,7 @@
         form {
             margin-bottom: 20px;
             display: inline-block;
-            text-align:center;
+            text-align: center;
         }
 
         label {
@@ -159,6 +192,15 @@
     </script>
 </head>
 <body>
+    <div class="tab-container">
+        <div class="tab-buttons">
+            <button class="tab-button" onclick="location.href='index.html'">ראשי</button>
+            <button class="tab-button active" onclick="location.href='credit.html'">עמלת אשראי</button>
+            <button class="tab-button" onclick="location.href='cheques.html'">עמלת צ'קים</button>
+            <button class="tab-button" onclick="location.href='payments.html'">עמלת תשלומים</button>
+        </div>
+    </div>
+
     <h1>עמלות תשלומים אשראי וצ'קים</h1>
     <form onsubmit="calculate(); return false;">
         <label for="amount">סכום קנייה:</label>
