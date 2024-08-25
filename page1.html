@@ -18,27 +18,27 @@
             justify-content: center;
         }
 
-            .tab-buttons button {
-                padding: 10px 20px;
-                cursor: pointer;
-                border: none;
-                background-color: #e0e0e0;
-                margin: 0 5px;
-                font-size: 16px;
-                font-weight: bold;
-                color: #555;
-                transition: background-color 0.3s, color 0.3s;
-                border-radius: 8px 8px 0 0;
-            }
+        .tab-buttons button {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background-color: #e0e0e0;
+            margin: 0 5px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #555;
+            transition: background-color 0.3s, color 0.3s;
+            border-radius: 8px 8px 0 0;
+        }
 
-                .tab-buttons button.active {
-                    background-color: #4CAF50;
-                    color: white;
-                }
+        .tab-buttons button.active {
+            background-color: #4CAF50;
+            color: white;
+        }
 
-                .tab-buttons button:hover:not(.active) {
-                    background-color: #cccccc;
-                }
+        .tab-buttons button:hover:not(.active) {
+            background-color: #cccccc;
+        }
 
         body {
             font-family: 'Heebo', sans-serif;
@@ -78,9 +78,9 @@
             cursor: pointer;
         }
 
-            button:hover {
-                background-color: #45a049;
-            }
+        button:hover {
+            background-color: #45a049;
+        }
 
         .results {
             display: none;
@@ -122,9 +122,9 @@
             font-size: 16px;
         }
 
-            .copy-notification.show {
-                display: inline;
-            }
+        .copy-notification.show {
+            display: inline;
+        }
 
         .result-text {
             flex: 1;
@@ -135,36 +135,59 @@
         function calculate() {
             const amount = parseFloat(document.getElementById('amount').value);
             const payments = parseInt(document.getElementById('payments').value);
-            const annualRate = 7.40 / 100;  // 7.40% annual rate
 
-            // Calculate monthly rate
-            const monthlyRate = Math.pow((annualRate + 1), (1 / 12)) - 1;
+            if (!isNaN(amount) && !isNaN(payments)) {
+                if (payments >= 3) {
+                    const annualRate = 7.40 / 100;  // 7.40% annual rate
 
-            // Calculate monthly payment
-            const monthlyPayment = -PMT(monthlyRate, payments, amount);
+                    // Calculate monthly rate
+                    const monthlyRate = Math.pow((annualRate + 1), (1 / 12)) - 1;
 
-            // Calculate total payment
-            const totalPayment = monthlyPayment * payments;
+                    // Calculate monthly payment
+                    const monthlyPayment = -PMT(monthlyRate, payments, amount);
 
-            // Calculate additional amount
-            const additionalAmount = totalPayment + amount;
+                    // Calculate total payment
+                    const totalPayment = monthlyPayment * payments;
 
-            // Calculate 1% commission
-            const commission = totalPayment / 100;
+                    // Calculate additional amount
+                    const additionalAmount = totalPayment + amount;
 
-            // Calculate final amount
-            const finalAmount = commission + totalPayment;
+                    // Calculate 1% commission
+                    const commission = totalPayment / 100;
 
-            // Display results
-            document.getElementById('monthlyRate').innerText = (monthlyRate * 100).toFixed(2) + '%';
-            document.getElementById('monthlyPayment').innerText = Math.abs(monthlyPayment.toFixed(2));
-            document.getElementById('totalPayment').innerText = Math.abs(totalPayment.toFixed(2));
-            document.getElementById('additionalAmount').innerText = Math.abs(additionalAmount.toFixed(2));
-            document.getElementById('commission').innerText = Math.abs(commission.toFixed(2));
-            document.getElementById('finalAmount').innerText = Math.abs(finalAmount.toFixed(2));
+                    // Calculate final amount
+                    const finalAmount = commission + totalPayment;
 
-            // Show results
-            document.getElementById('results').style.display = 'block';
+                    // Display results
+                    document.getElementById('monthlyRate').innerText = (monthlyRate * 100).toFixed(2) + '%';
+                    document.getElementById('monthlyPayment').innerText = Math.abs(monthlyPayment.toFixed(2));
+                    document.getElementById('totalPayment').innerText = Math.abs(totalPayment.toFixed(2));
+                    document.getElementById('additionalAmount').innerText = Math.abs(additionalAmount.toFixed(2));
+                    document.getElementById('commission').innerText = Math.abs(commission.toFixed(2));
+                    document.getElementById('finalAmount').innerText = Math.abs(finalAmount.toFixed(2));
+
+                    // Show results for payments >= 3
+                    document.querySelectorAll('.result-item.conditional').forEach(item => item.style.display = 'flex');
+                } else {
+                    // Calculate 1% of the amount
+                    const onePercent = amount * 0.01;
+                    const reducedAmount = amount - onePercent;
+
+                    // Display 1% and reduced amount
+                    document.getElementById('monthlyRate').innerText = '-';
+                    document.getElementById('monthlyPayment').innerText = '-';
+                    document.getElementById('totalPayment').innerText = '-';
+                    document.getElementById('additionalAmount').innerText = '-';
+                    document.getElementById('commission').innerText = onePercent.toFixed(2);
+                    document.getElementById('finalAmount').innerText = reducedAmount.toFixed(2);
+
+                    // Hide results for payments < 3
+                    document.querySelectorAll('.result-item.conditional').forEach(item => item.style.display = 'none');
+                }
+
+                // Show results
+                document.getElementById('results').style.display = 'block';
+            }
         }
 
         function PMT(rate, nper, pv) {
@@ -189,10 +212,15 @@
                 button.innerText = 'העתק';
             }, 2000);
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('amount').addEventListener('input', calculate);
+            document.getElementById('payments').addEventListener('input', calculate);
+        });
     </script>
 </head>
 <body>
-       <div class="tab-container">
+    <div class="tab-container">
         <div class="tab-buttons">
             <button class="tab-button" onclick="location.href='index.html'">ראשי</button>
             <button class="tab-button active" onclick="location.href='page1.html'">עמלת אשראי</button>
@@ -201,54 +229,52 @@
         </div>
     </div>
 
-
     <h1>עמלות תשלומים אשראי וצ'קים</h1>
-    <form onsubmit="calculate(); return false;">
+    <form onsubmit="return false;">
         <label for="amount">סכום קנייה:</label>
         <input type="number" id="amount" step="0.01" required><br>
         <label for="payments">תשלומים:</label>
         <input type="number" id="payments" required><br>
-        <button type="submit">חשב</button>
     </form>
     <div id="results" class="results">
         <h2>תוצאות</h2>
-        <div class="result-item">
+        <div class="result-item conditional">
             <div class="result-text">ריבית חודשית מותאמת: <span id="monthlyRate"></span></div>
             <button class="copy-button" onclick="copyToClipboard(document.getElementById('monthlyRate').innerText, this)">
                 העתק
                 <span class="copy-notification">✔</span>
             </button>
         </div>
-        <div class="result-item">
-            <div class="result-text">גובה כל תשלום: ₪<span id="monthlyPayment"></span></div>
+        <div class="result-item conditional">
+            <div class="result-text">תשלום חודשי: ₪<span id="monthlyPayment"></span></div>
             <button class="copy-button" onclick="copyToClipboard(document.getElementById('monthlyPayment').innerText, this)">
                 העתק
                 <span class="copy-notification">✔</span>
             </button>
         </div>
-        <div class="result-item">
-            <div class="result-text">סכום כולל תשלומים: ₪<span id="totalPayment"></span></div>
+        <div class="result-item conditional">
+            <div class="result-text">סכום כולל לתשלום: ₪<span id="totalPayment"></span></div>
             <button class="copy-button" onclick="copyToClipboard(document.getElementById('totalPayment').innerText, this)">
                 העתק
                 <span class="copy-notification">✔</span>
             </button>
         </div>
-        <div class="result-item">
-            <div class="result-text">תוספת: ₪<span id="additionalAmount"></span></div>
+        <div class="result-item conditional">
+            <div class="result-text">הוספת סכום מלא: ₪<span id="additionalAmount"></span></div>
             <button class="copy-button" onclick="copyToClipboard(document.getElementById('additionalAmount').innerText, this)">
                 העתק
                 <span class="copy-notification">✔</span>
             </button>
         </div>
         <div class="result-item">
-            <div class="result-text">עמלת סליקה 1%: ₪<span id="commission"></span></div>
+            <div class="result-text">עמלת 1%: ₪<span id="commission"></span></div>
             <button class="copy-button" onclick="copyToClipboard(document.getElementById('commission').innerText, this)">
                 העתק
                 <span class="copy-notification">✔</span>
             </button>
         </div>
         <div class="result-item">
-            <div class="result-text">הסכום המחושב בפועל: ₪<span id="finalAmount"></span></div>
+            <div class="result-text">סכום סופי: ₪<span id="finalAmount"></span></div>
             <button class="copy-button" onclick="copyToClipboard(document.getElementById('finalAmount').innerText, this)">
                 העתק
                 <span class="copy-notification">✔</span>
