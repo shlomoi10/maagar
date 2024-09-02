@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מחשבון ריבית על עסקה בתשלומים</title>
+</head>
+<body>
+    <h1>מחשבון ריבית על עסקה בתשלומים</h1>
+    <form id="interestForm">
+        <label for="amount">סכום העסקה:</label>
+        <input type="number" id="amount" required><br>
+
+        <label for="months">מספר חודשים לתשלום:</label>
+        <input type="number" id="months" required><br>
+
+        <label for="rate">ריבית שנתית (%):</label>
+        <input type="number" step="0.01" id="rate" required><br>
+
+        <label for="delay">מספר חודשי דחייה:</label>
+        <input type="number" id="delay" required><br>
+
+        <button type="button" onclick="calculateInterest()">חשב</button>
+    </form>
+
+    <h2>תוצאות:</h2>
+    <p id="result"></p>
+
+    <script>
+        function calculateInterest() {
+            const amount = parseFloat(document.getElementById('amount').value);
+            const months = parseInt(document.getElementById('months').value);
+            const annualRate = parseFloat(document.getElementById('rate').value) / 100;
+            const delay = parseInt(document.getElementById('delay').value);
+
+            // חישוב ריבית חודשית מתואמת
+            const monthlyRate = Math.pow(1 + annualRate, 1 / 12) - 1;
+
+            // חישוב קרן לאחר חודשי הדחייה
+            const amountAfterDelay = amount * Math.pow(1 + monthlyRate, delay);
+
+            // חישוב גובה כל תשלום חודשי
+            const monthlyPayment = (amountAfterDelay * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -months));
+
+            // חישוב סכום כולל שייגבה
+            const totalAmountToPay = monthlyPayment * months;
+
+            document.getElementById('result').innerText = 
+                `גובה כל תשלום חודשי: ${monthlyPayment.toFixed(2)} ש"ח.\n` +
+                `הסכום הכולל לתשלום לאחר ${delay} חודשי דחייה ולאורך ${months} חודשי תשלום הוא ${totalAmountToPay.toFixed(2)} ש"ח.`;
+        }
+    </script>
+</body>
+</html>
