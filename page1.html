@@ -171,7 +171,7 @@
                 } else {
                     // Calculate 1% of the amount
                     const onePercent = amount * 0.01;
-                    const reducedAmount = amount - onePercent;
+                    const reducedAmount = amount + onePercent;
 
                     // Display 1% and reduced amount
                     document.getElementById('monthlyRate').innerText = '-';
@@ -229,7 +229,7 @@
         </div>
     </div>
 
-    <h1>עמלות תשלומים אשראי וצ'קים</h1>
+    <h1>עמלות תשלומי אשראי</h1>
     <form onsubmit="return false;">
         <label for="amount">סכום קנייה:</label>
         <input type="number" id="amount" step="0.01" required><br>
