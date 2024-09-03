@@ -3,288 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>עמלות תשלומים אשראי וצ'קים</title>
+    <title>חישוב סכום קניה</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap');
-        .tab-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .tab-buttons {
-            display: flex;
-            justify-content: center;
-        }
-
-        .tab-buttons button {
-            padding: 10px 20px;
-            cursor: pointer;
-            border: none;
-            background-color: #e0e0e0;
-            margin: 0 5px;
-            font-size: 16px;
-            font-weight: bold;
-            color: #555;
-            transition: background-color 0.3s, color 0.3s;
-            border-radius: 8px 8px 0 0;
-        }
-
-        .tab-buttons button.active {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        .tab-buttons button:hover:not(.active) {
-            background-color: #cccccc;
-        }
-
         body {
-            font-family: 'Heebo', sans-serif;
+            font-family: Arial, sans-serif;
             direction: rtl;
-            text-align: center;
+            text-align: right;
             margin: 20px;
         }
-
-        h1 {
-            color: #333;
+        table {
+            width: 100%;
+            max-width: 500px;
+            border-collapse: collapse;
         }
-
-        form {
-            margin-bottom: 20px;
-            display: inline-block;
-            text-align: center;
-        }
-
-        label {
-            display: block;
-            margin-top: 10px;
-        }
-
-        input[type="number"] {
-            padding: 5px;
-            width: 150px;
-            margin-top: 5px;
-        }
-
-        button {
-            font-family: 'Heebo', sans-serif;
-            margin-top: 10px;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        .results {
-            display: none;
-            border: 1px solid #ccc;
+        th, td {
             padding: 10px;
-            margin-top: 20px;
-            border-radius: 10px;
-            background-color: #f9f9f9;
-            text-align: center;
-            width: 40%;
-            margin-left: auto;
-            margin-right: auto;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
         }
-
-        .result-item {
-            margin-top: 5px;
-            display: flex;
-            justify-content: flex-start;
-            align-items: center;
+        input[type="number"] {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
         }
-
-        .copy-button {
-            background-color: #ddd;
-            border: none;
-            cursor: pointer;
-            padding: 2px 5px;
-            margin-left: 10px;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .copy-notification {
-            display: none;
-            margin-left: 5px;
-            color: #4CAF50;
-            font-size: 16px;
-        }
-
-        .copy-notification.show {
-            display: inline;
-        }
-
-        .result-text {
-            flex: 1;
-            text-align: center;
-        }
-
         .hidden {
             display: none;
         }
     </style>
-    <script>
-        function calculate() {
-            const amount = parseFloat(document.getElementById('amount').value);
-            const payments = parseInt(document.getElementById('payments').value);
-            const deferredMonths = parseInt(document.getElementById('deferredMonths').value) || 0;
-            let totalPayment = 0, commission = 0, finalAmount = 0, interestAmount = 0;
-
-            if (!isNaN(amount) && !isNaN(payments)) {
-                if (deferredMonths > 0) {
-                    // Calculation for deferred payments
-                    const interestRate = 0.006;
-                    interestAmount = amount * interestRate * deferredMonths;
-                    totalPayment = amount + interestAmount;
-                } else {
-                    // Regular calculation
-                    const annualRate = 7.40 / 100;  // 7.40% annual rate
-                    const monthlyRate = Math.pow((annualRate + 1), (1 / 12)) - 1;
-                    const monthlyPayment = -PMT(monthlyRate, payments, amount);
-                    totalPayment = monthlyPayment * payments;
-
-                    document.getElementById('monthlyRate').innerText = (monthlyRate * 100).toFixed(2) + '%';
-                    document.getElementById('monthlyPayment').innerText = Math.abs(monthlyPayment.toFixed(2));
-                }
-
-                commission = totalPayment * 0.01;
-                finalAmount = totalPayment + commission;
-
-                // Display values
-                document.getElementById('interestAmount').innerText = interestAmount.toFixed(2);
-                document.getElementById('totalPayment').innerText = totalPayment.toFixed(2);
-                document.getElementById('commission').innerText = commission.toFixed(2);
-                document.getElementById('finalAmount').innerText = finalAmount.toFixed(2);
-
-                // Show results
-                document.getElementById('results').style.display = 'block';
-            }
-        }
-
-        function PMT(rate, nper, pv) {
-            return (rate * pv) / (1 - Math.pow(1 + rate, -nper));
-        }
-
-        function toggleDeferred() {
-            const deferredSection = document.getElementById('deferredSection');
-            const toggleButton = document.getElementById('toggleDeferred');
-
-            if (deferredSection.classList.contains('hidden')) {
-                deferredSection.classList.remove('hidden');
-                toggleButton.textContent = '-';
-            } else {
-                deferredSection.classList.add('hidden');
-                toggleButton.textContent = '+';
-                document.getElementById('deferredMonths').value = '';  // Clear deferred months input when hiding
-            }
-        }
-
-        async function copyToClipboard(value, button) {
-            try {
-                await navigator.clipboard.writeText(value);
-                showCopyNotification(button);
-            } catch (err) {
-                console.error('Failed to copy: ', err);
-            }
-        }
-
-        function showCopyNotification(button) {
-            const notification = button.querySelector('.copy-notification');
-            notification.classList.add('show');
-            button.innerText = 'הועתק ✔';
-            setTimeout(() => {
-                notification.classList.remove('show');
-                button.innerText = 'העתק';
-            }, 2000);
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('amount').addEventListener('input', calculate);
-            document.getElementById('payments').addEventListener('input', calculate);
-            document.getElementById('deferredMonths').addEventListener('input', calculate);
-        });
-    </script>
 </head>
 <body>
-    <div class="tab-container">
-        <div class="tab-buttons">
-            <button class="tab-button" onclick="location.href='index.html'">ראשי</button>
-            <button class="tab-button active" onclick="location.href='page1.html'">עמלת אשראי</button>
-            <button class="tab-button" onclick="location.href='page2.html'">עמלת צ'קים</button>
-            <button class="tab-button" onclick="location.href='page3.html'">עמלת פירעון דחוי</button>
-        </div>
-    </div>
 
-    <h1>עמלות תשלומי אשראי</h1>
-    <form onsubmit="return false;">
-        <label for="amount">סכום קנייה:</label>
-        <input type="number" id="amount" step="0.01" required><br>
-        <label for="payments">תשלומים:</label>
-        <input type="number" id="payments" required><br>
-        <label>פירעון דחוי:</label>
-        <button id="toggleDeferred" type="button" onclick="toggleDeferred()">+</button><br>
-        <div id="deferredSection" class="hidden">
-            <label for="deferredMonths">מספר חודשים:</label>
-            <input type="number" id="deferredMonths"><br>
-        </div>
-    </form>
+<h2>חישוב סכום קניה</h2>
+<table>
+    <tr>
+        <td>סכום הקניה</td>
+        <td><input type="number" id="purchaseAmount" oninput="calculate()" /></td>
+    </tr>
+    <tr>
+        <td>מספר תשלומים</td>
+        <td><input type="number" id="installments" oninput="calculate()" /></td>
+    </tr>
+    <tr>
+        <td>חודשי דחיה</td>
+        <td><input type="number" id="deferredMonths" oninput="calculate()" /></td>
+    </tr>
+    <tr class="hidden">
+        <td>סך הכל חודשים</td>
+        <td id="totalMonths"></td>
+    </tr>
+    <tr>
+        <th colspan="2">עמלת אשראי</th>
+    </tr>
+    <tr class="hidden">
+        <td>ריבית שנתית (באחוזים)</td>
+        <td id="annualInterest">7.4%</td>
+    </tr>
+    <tr>
+        <td>ריבית חודשית מתואמת</td>
+        <td id="monthlyInterest"></td>
+    </tr>
+    <tr>
+        <td>גובה כל תשלום</td>
+        <td id="paymentAmount"></td>
+    </tr>
+    <tr>
+        <td>סכום כולל שייגבה</td>
+        <td id="totalAmountCollected"></td>
+    </tr>
+    <tr>
+        <td>תוספת תשלומים</td>
+        <td id="paymentAddition"></td>
+    </tr>
+    <tr>
+        <th colspan="2">עמלת תשלום דחוי</th>
+    </tr>
+    <tr>
+        <td>סכום ההתפשרות [ריבית]</td>
+        <td id="defermentInterest">0.006</td>
+    </tr>
+    <tr>
+        <td>תוספת דחוי</td>
+        <td id="deferredAddition"></td>
+    </tr>
+    <tr>
+        <th colspan="2">סך הכל</th>
+    </tr>
+    <tr>
+        <td>סך הכל תוספות</td>
+        <td id="totalAdditions"></td>
+    </tr>
+    <tr>
+        <td>סך לפני עמלת סליקה</td>
+        <td id="amountBeforeFee"></td>
+    </tr>
+    <tr>
+        <td>עמלת סליקה 1%</td>
+        <td id="clearingFee"></td>
+    </tr>
+    <tr>
+        <td>הסכום המחושב בפועל</td>
+        <td id="finalAmount"></td>
+    </tr>
+</table>
 
-    <div id="results" class="results">
-        <h2>תוצאות</h2>
-        <div class="result-item conditional">
-            <div class="result-text">ריבית חודשית מותאמת: <span id="monthlyRate">-</span></div>
-            <button class="copy-button" onclick="copyToClipboard(document.getElementById('monthlyRate').innerText, this)">
-                העתק
-                <span class="copy-notification">✔</span>
-            </button>
-        </div>
-        <div class="result-item conditional">
-            <div class="result-text">תשלום חודשי: ₪<span id="monthlyPayment">-</span></div>
-            <button class="copy-button" onclick="copyToClipboard(document.getElementById('monthlyPayment').innerText, this)">
-                העתק
-                <span class="copy-notification">✔</span>
-            </button>
-        </div>
-        <div class="result-item">
-            <div class="result-text">סה"כ תוספת: ₪<span id="interestAmount">0.00</span></div>
-            <button class="copy-button" onclick="copyToClipboard(document.getElementById('interestAmount').innerText, this)">
-                העתק
-                <span class="copy-notification">✔</span>
-            </button>
-        </div>
-        <div class="result-item">
-            <div class="result-text">סכום כולל לתשלום: ₪<span id="totalPayment">0.00</span></div>
-            <button class="copy-button" onclick="copyToClipboard(document.getElementById('totalPayment').innerText, this)">
-                העתק
-                <span class="copy-notification">✔</span>
-            </button>
-        </div>
-        <div class="result-item">
-            <div class="result-text">עמלת 1%: ₪<span id="commission">0.00</span></div>
-            <button class="copy-button" onclick="copyToClipboard(document.getElementById('commission').innerText, this)">
-                העתק
-                <span class="copy-notification">✔</span>
-            </button>
-        </div>
-        <div class="result-item">
-            <div class="result-text">סכום סופי: ₪<span id="finalAmount">0.00</span></div>
-            <button class="copy-button" onclick="copyToClipboard(document.getElementById('finalAmount').innerText, this)">
-                העתק
-                <span class="copy-notification">✔</span>
-            </button>
-        </div>
-    </div>
+<script>
+function calculate() {
+    // קבלת הערכים מהשדות
+    const purchaseAmount = parseFloat(document.getElementById("purchaseAmount").value) || 0;
+    const installments = parseFloat(document.getElementById("installments").value) || 0;
+    const deferredMonths = parseFloat(document.getElementById("deferredMonths").value) || 0;
+    const annualInterest = 7.4 / 100; // קבוע
+    const defermentInterest = 0.006; // קבוע
+
+    // חישובים
+    const totalMonths = installments + deferredMonths;
+    const monthlyInterest = Math.pow((annualInterest + 1), (1/12)) - 1;
+    const paymentAmount = Math.abs(-purchaseAmount * (monthlyInterest / (1 - Math.pow(1 + monthlyInterest, -installments))));
+    const totalAmountCollected = Math.abs(paymentAmount * installments);
+    const paymentAddition = totalAmountCollected - purchaseAmount;
+    const deferredAddition = purchaseAmount * defermentInterest * deferredMonths;
+    const totalAdditions = paymentAddition + deferredAddition;
+    const amountBeforeFee = purchaseAmount + totalAdditions;
+    let clearingFee;
+    let finalAmount;
+
+    if (totalMonths < 3) {
+        clearingFee = purchaseAmount / 100;
+        finalAmount = purchaseAmount + clearingFee;
+
+        // הצגת תוצאות עבור מקרה של פחות משלושה חודשים
+        document.getElementById("clearingFee").textContent = clearingFee.toFixed(2);
+        document.getElementById("finalAmount").textContent = finalAmount.toFixed(2);
+
+        // הסתרת תוצאות אחרות
+        document.getElementById("monthlyInterest").textContent = '';
+        document.getElementById("paymentAmount").textContent = '';
+        document.getElementById("totalAmountCollected").textContent = '';
+        document.getElementById("paymentAddition").textContent = '';
+        document.getElementById("deferredAddition").textContent = '';
+        document.getElementById("totalAdditions").textContent = '';
+        document.getElementById("amountBeforeFee").textContent = '';
+    } else {
+        clearingFee = amountBeforeFee / 100;
+        finalAmount = amountBeforeFee + clearingFee;
+
+        // הצגת תוצאות עבור מקרה של יותר משלושה חודשים
+        document.getElementById("totalMonths").textContent = totalMonths.toFixed(2);
+	document.getElementById("monthlyInterest").textContent = (monthlyInterest * 100).toFixed(2) + '%';
+        document.getElementById("paymentAmount").textContent = paymentAmount.toFixed(2);
+        document.getElementById("totalAmountCollected").textContent = totalAmountCollected.toFixed(2);
+        document.getElementById("paymentAddition").textContent = paymentAddition.toFixed(2);
+        document.getElementById("deferredAddition").textContent = deferredAddition.toFixed(2);
+        document.getElementById("totalAdditions").textContent = totalAdditions.toFixed(2);
+        document.getElementById("amountBeforeFee").textContent = amountBeforeFee.toFixed(2);
+        document.getElementById("clearingFee").textContent = clearingFee.toFixed(2);
+        document.getElementById("finalAmount").textContent = finalAmount.toFixed(2);
+    }
+}
+</script>
+
 </body>
 </html>
