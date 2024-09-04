@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>חישוב סכום קניה</title>
+    <!-- קישור לפונט יפה מגוגל -->
+    <link href="https://fonts.googleapis.com/css2?family=Alef:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet"> <!-- קישור ל-FontAwesome -->
+    <style>
+        body {
+            font-family: 'Alef', sans-serif;
+            direction: rtl;
+            text-align: right;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+        h2 {
+            color: #333;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        th, td {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #3f51b5;
+            color: #fff;
+            font-size: 18px;
+        }
+        td {
+            font-size: 16px;
+        }
+        input[type="number"] {
+            width: 90%;
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        input[type="number"]:focus {
+            border-color: #3f51b5;
+            outline: none;
+        }
+        .hidden {
+            display: none;
+        }
+        .share-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .share-button button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: #3f51b5;
+        }
+        .home-button {
+            display: block;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .home-button a {
+            text-decoration: none;
+            font-size: 18px;
+            color: #fff;
+            background-color: #3f51b5;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+        .copy-icon {
+            cursor: pointer;
+            color: #3f51b5;
+        }
+    </style>
+</head>
+<body>
+
+<!-- לחצן "ראשי" -->
+<div class="home-button">
+    <a href="index.html">ראשי</a>
+</div>
+
+<!-- לחצן שיתוף -->
+<div class="share-button">
+    <button onclick="shareResults()">
+        <i class="fas fa-share-alt"></i>
+    </button>
+</div>
+
+<h2>חישוב סכום קניה</h2>
+<table id="resultsTable">
+    <tr>
+        <td>סכום הקניה</td>
+        <td><input type="number" id="purchaseAmount" oninput="calculate()" /></td>
+    </tr>
+    <tr>
+        <td>מספר תשלומים</td>
+        <td><input type="number" id="installments" oninput="calculate()" /></td>
+    </tr>
+    <tr>
+        <td>
+            חודשי דחיה 
+            <input type="checkbox" id="deferredCheck" onclick="toggleDeferredMonths()" />
+        </td>
+        <td id="deferredMonthsContainer">
+            <input type="number" id="deferredMonths" value="0" oninput="calculate()" class="hidden" /> <!-- ערך ברירת מחדל 0 -->
+            <span id="deferredNoneText">ללא</span>
+        </td>
+    </tr>
+    <tr class="hidden"> <!-- הסתרת השורה -->
+        <td>סך הכל חודשים</td>
+        <td id="totalMonths"></td>
+    </tr>
+    <tr>
+        <th colspan="2">עמלת אשראי</th>
+    </tr>
+    <tr class="hidden"> <!-- הסתרת השורה -->
+        <td>ריבית שנתית (באחוזים)</td>
+        <td id="annualInterest">7.4%</td>
+    </tr>
+    <tr class="result-row hidden">
+        <td>ריבית חודשית מתואמת</td>
+        <td id="monthlyInterest"></td>
+    </tr>
+    <tr class="result-row hidden">
+        <td>גובה כל תשלום</td>
+        <td id="paymentAmount"></td>
+    </tr>
+    <tr class="result-row hidden">
+        <td>סכום כולל שייגבה</td>
+        <td id="totalAmountCollected"></td>
+    </tr>
+    <tr class="result-row hidden">
+        <td>תוספת תשלומים</td>
+        <td id="paymentAddition"></td>
+    </tr>
+    <tr id="deferredSection">
+        <th colspan="2">עמלת תשלום דחוי</th>
+    </tr>
+    <tr class="result-row hidden">
+        <td>סכום ההתפשרות [ריבית]</td>
+        <td id="defermentInterest">0.006</td>
+    </tr>
+    <tr class="result-row hidden">
+        <td>תוספת דחוי</td>
+        <td id="deferredAddition"></td>
+    </tr>
+    <tr>
+        <th colspan="2">סך הכל</th>
+    </tr>
+    <tr class="result-row hidden">
+        <td>סך הכל תוספות</td>
+        <td id="totalAdditions"></td>
+    </tr>
+    <tr class="result-row hidden">
+        <td>סך לפני עמלת סליקה</td>
+        <td id="amountBeforeFee"></td>
+    </tr>
+    <tr class="result-row hidden">
+        <td>עמלת סליקה 1%</td>
+        <td id="clearingFee"></td>
+    </tr>
+    <tr class="result-row hidden">
+        <td>הסכום המחושב בפועל</td>
+        <td id="finalAmount">
+            <span id="finalAmountText"></span>
+            <i class="fas fa-copy copy-icon" onclick="copyToClipboard('finalAmountText')"></i>
+        </td>
+    </tr>
+</table>
+
+<!-- הוספת html2canvas -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+function toggleDeferredMonths() {
+    const deferredCheck = document.getElementById('deferredCheck');
+    const deferredMonthsInput = document.getElementById('deferredMonths');
+    const deferredNoneText = document.getElementById('deferredNoneText');
+    if (deferredCheck.checked) {
+        deferredMonthsInput.classList.remove('hidden');
+        deferredNoneText.classList.add('hidden');
+    } else {
+        deferredMonthsInput.classList.add('hidden');
+        deferredNoneText.classList.remove('hidden');
+        deferredMonthsInput.value = 0;
+        calculate();
+    }
+}
+
+function calculate() {
+    // קבלת הערכים מהשדות
+    const purchaseAmount = parseFloat(document.getElementById("purchaseAmount").value) || 0;
+    const installments = parseFloat(document.getElementById("installments").value) || 0;
+    const deferredMonths = parseFloat(document.getElementById("deferredMonths").value) || 0;
+    const annualInterest = 7.4 / 100; // קבוע
+    const defermentInterest = 0.006; // קבוע
+
+    // הצגת או הסתרת החלק של עמלת תשלום דחוי
+    const deferredSection = document.getElementById("deferredSection");
+    const deferredRows = document.querySelectorAll(".result-row.hidden");
+    if (deferredMonths === 0) {
+        deferredSection.classList.add('hidden');
+        deferredRows.forEach(row => row.classList.add('hidden'));
+    } else {
+        deferredSection.classList.remove('hidden');
+    }
+
+    // בדיקה אם כל השדות מכילים ערך
+    if (purchaseAmount > 0 && installments > 0) {
+        // חישובים
+        const totalMonths = installments + deferredMonths;
+        const monthlyInterest = Math.pow((annualInterest + 1), (1/12)) - 1;
+        const paymentAmount = Math.abs(-purchaseAmount * (monthlyInterest / (1 - Math.pow(1 + monthlyInterest, -installments))));
+        const totalAmountCollected = Math.abs(paymentAmount * installments);
+        const paymentAddition = totalAmountCollected - purchaseAmount;
+        const deferredAddition = purchaseAmount * defermentInterest * deferredMonths;
+        const totalAdditions = paymentAddition + deferredAddition;
+        const amountBeforeFee = purchaseAmount + totalAdditions;
+        let clearingFee;
+        let finalAmount;
+
+        if (totalMonths < 3) {
+            clearingFee = purchaseAmount / 100;
+            finalAmount = purchaseAmount + clearingFee;
+
+            // הצגת תוצאות עבור מקרה של פחות משלושה חודשים
+            document.querySelectorAll(".result-row").forEach(row => row.classList.add('hidden'));
+            document.getElementById("clearingFee").textContent = clearingFee.toFixed(2);
+            document.getElementById("finalAmountText").textContent = finalAmount.toFixed(2);
+            document.getElementById("clearingFee").parentNode.classList.remove('hidden');
+            document.getElementById("finalAmountText").parentNode.parentNode.classList.remove('hidden');
+        } else {
+            clearingFee = amountBeforeFee / 100;
+            finalAmount = amountBeforeFee + clearingFee;
+
+            // הצגת תוצאות עבור מקרה של יותר משלושה חודשים
+            document.querySelectorAll(".result-row").forEach(row => row.classList.remove('hidden'));
+            document.getElementById("totalMonths").textContent = totalMonths.toFixed(2);
+            document.getElementById("monthlyInterest").textContent = (monthlyInterest * 100).toFixed(2) + '%';
+            document.getElementById("paymentAmount").textContent = paymentAmount.toFixed(2);
+            document.getElementById("totalAmountCollected").textContent = totalAmountCollected.toFixed(2);
+            document.getElementById("paymentAddition").textContent = paymentAddition.toFixed(2);
+            document.getElementById("deferredAddition").textContent = deferredAddition.toFixed(2);
+            document.getElementById("totalAdditions").textContent = totalAdditions.toFixed(2);
+            document.getElementById("amountBeforeFee").textContent = amountBeforeFee.toFixed(2);
+            document.getElementById("clearingFee").textContent = clearingFee.toFixed(2);
+            document.getElementById("finalAmountText").textContent = finalAmount.toFixed(2);
+        }
+    } else {
+        // הסתרת כל התוצאות אם אין ערכים בכל השדות
+        document.querySelectorAll(".result-row").forEach(row => row.classList.add('hidden'));
+    }
+}
+
+function shareResults() {
+    const element = document.getElementById('resultsTable'); // האלמנט ממנו נוצרת התמונה
+
+    html2canvas(element).then(canvas => {
+        canvas.toBlob(blob => {
+            const url = URL.createObjectURL(blob);
+
+            // יצירת קישור להורדה ושיתוף
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'תוצאות.png';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+    });
+}
+
+function copyToClipboard(elementId) {
+    const text = document.getElementById(elementId).textContent;
+    navigator.clipboard.writeText(text).then(() => {
+        alert('הסכום הועתק בהצלחה!');
+    });
+}
+</script>
+
+</body>
+</html>
