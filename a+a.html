@@ -112,7 +112,7 @@
 
 <h2>חישוב סכום קניה</h2>
 <table id="resultsTable">
-    <tr>
+    <tr id="deferredRow">
         <td>
             <i id="deferredIcon" class="fas fa-toggle-off toggle-icon" onclick="toggleDeferredMonths()"></i>
             חודשי דחיה
@@ -199,6 +199,7 @@ function toggleDeferredMonths() {
     const deferredIcon = document.getElementById('deferredIcon');
     const deferredMonthsInput = document.getElementById('deferredMonths');
     const deferredNoneText = document.getElementById('deferredNoneText');
+    const deferredRow = document.getElementById('deferredRow');
 
     if (deferredMonthsInput.classList.contains('hidden')) {
         deferredIcon.classList.remove('fa-toggle-off');
@@ -281,9 +282,15 @@ function calculate() {
 }
 
 function shareResults() {
-    const element = document.getElementById('resultsTable'); // האלמנט ממנו נוצרת התמונה
+    const deferredRow = document.getElementById('deferredRow');
+    const deferredIcon = document.getElementById('deferredIcon');
+    
+    // אם חודשי דחיה כבוי, מסתירים את השורה לפני השיתוף
+    if (deferredIcon.classList.contains('fa-toggle-off')) {
+        deferredRow.classList.add('hidden');
+    }
 
-    html2canvas(element).then(canvas => {
+    html2canvas(document.getElementById('resultsTable')).then(canvas => {
         canvas.toBlob(blob => {
             const url = URL.createObjectURL(blob);
 
@@ -294,6 +301,11 @@ function shareResults() {
             a.click();
             URL.revokeObjectURL(url);
         });
+
+        // אם חודשי דחיה היה כבוי, מחזירים את השורה לאחר השיתוף
+        if (deferredIcon.classList.contains('fa-toggle-off')) {
+            deferredRow.classList.remove('hidden');
+        }
     });
 }
 
