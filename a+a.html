@@ -87,6 +87,13 @@
             cursor: pointer;
             color: #3f51b5;
         }
+        .toggle-icon {
+            cursor: pointer;
+            font-size: 20px;
+            color: #3f51b5;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
@@ -106,22 +113,22 @@
 <h2>חישוב סכום קניה</h2>
 <table id="resultsTable">
     <tr>
+        <td>
+            <i id="deferredIcon" class="fas fa-toggle-off toggle-icon" onclick="toggleDeferredMonths()"></i>
+            חודשי דחיה
+        </td>
+        <td id="deferredMonthsContainer">
+            <input type="number" id="deferredMonths" value="0" oninput="calculate()" class="hidden" /> <!-- ערך ברירת מחדל 0 -->
+            <span id="deferredNoneText">ללא</span>
+        </td>
+    </tr>
+    <tr>
         <td>סכום הקניה</td>
         <td><input type="number" id="purchaseAmount" oninput="calculate()" /></td>
     </tr>
     <tr>
         <td>מספר תשלומים</td>
         <td><input type="number" id="installments" oninput="calculate()" /></td>
-    </tr>
-    <tr>
-        <td>
-            חודשי דחיה 
-            <input type="checkbox" id="deferredCheck" onclick="toggleDeferredMonths()" />
-        </td>
-        <td id="deferredMonthsContainer">
-            <input type="number" id="deferredMonths" value="0" oninput="calculate()" class="hidden" /> <!-- ערך ברירת מחדל 0 -->
-            <span id="deferredNoneText">ללא</span>
-        </td>
     </tr>
     <tr class="hidden"> <!-- הסתרת השורה -->
         <td>סך הכל חודשים</td>
@@ -189,13 +196,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 function toggleDeferredMonths() {
-    const deferredCheck = document.getElementById('deferredCheck');
+    const deferredIcon = document.getElementById('deferredIcon');
     const deferredMonthsInput = document.getElementById('deferredMonths');
     const deferredNoneText = document.getElementById('deferredNoneText');
-    if (deferredCheck.checked) {
+
+    if (deferredMonthsInput.classList.contains('hidden')) {
+        deferredIcon.classList.remove('fa-toggle-off');
+        deferredIcon.classList.add('fa-toggle-on');
         deferredMonthsInput.classList.remove('hidden');
         deferredNoneText.classList.add('hidden');
     } else {
+        deferredIcon.classList.remove('fa-toggle-on');
+        deferredIcon.classList.add('fa-toggle-off');
         deferredMonthsInput.classList.add('hidden');
         deferredNoneText.classList.remove('hidden');
         deferredMonthsInput.value = 0;
