@@ -349,7 +349,7 @@
         const { monthlyInterest, paymentAddition, totalAmountCollected } = calculatePaymentDetails(purchaseAmount, installments);
 
         table.innerHTML += `
-            <tr><td>ריבית חודשית מתואמת</td><td>${(monthlyInterest * 100).toFixed(2)}%</td></tr>
+            <tr><td>ריבית חודשית</td><td>${(monthlyInterest * 100).toFixed(2)}%</td></tr>
             <tr class="hidden"><td>גובה כל תשלום</td><td></td></tr>
             <tr><td>סכום כולל שייגבה</td><td>${totalAmountCollected.toFixed(2)}</td></tr>
             <tr><td>תוספת ריבית</td><td>${paymentAddition.toFixed(2)}</td></tr>
