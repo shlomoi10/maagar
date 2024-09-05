@@ -141,8 +141,21 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             padding: 20px;
             margin-bottom: 20px;
-            max-width: 600px; /* רוחב הכרטיס מוגדר כמו הטבלה */
-            margin: 0 auto;  /* מרכז את הכרטיס */
+            max-width: 600px;
+            margin: 0 auto;
+        }
+.home-button {
+            display: block;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .home-button a {
+            text-decoration: none;
+            font-size: 18px;
+            color: #fff;
+            background-color: #3f51b5;
+            padding: 10px 20px;
+            border-radius: 5px;
         }
         .row-inputs {
             display: flex;
@@ -172,6 +185,10 @@
     </style>
 </head>
 <body>
+<!-- לחצן "ראשי" -->
+<div class="home-button">
+    <a href="index.html">ראשי</a>
+</div>
 
 <h2>עמלות צ'קים</h2>
 
@@ -186,26 +203,42 @@
     </button>
 </div>
 
-<div id="paymentRowsContainer" class="card"></div>
+<div id="contentToSave">
+    <div id="paymentRowsContainer" class="card">
 
-<!-- כפתור לחישוב -->
-<button id="calculate-btn" onclick="calculateResults()">חשב</button>
+        <!-- השורה החדשה של חודשי דחיה -->
+        <tr id="deferredRow">
+            <td>
+                <i id="deferredIcon" class="fas fa-toggle-off toggle-icon" onclick="toggleDeferredMonths()"></i>
+                חודשי דחיה
+            </td>
+            <td id="deferredMonthsContainer">
+                <input type="number" id="deferredMonths" oninput="calculateResults()" class="hidden" />
+                <span id="deferredNoneText">ללא</span>
+            </td>
+        </tr>
 
-<!-- תוצאות חישוב -->
-<div id="resultsContainer" class="results-container"></div>
+    </div>
 
-<div class="total-section" id="totalSection"></div>
+    <!-- כפתור לחישוב -->
+    <button id="calculate-btn" onclick="calculateResults()">חשב</button>
+
+    <!-- תוצאות חישוב -->
+    <div id="resultsContainer" class="results-container"></div>
+
+    <div class="total-section" id="totalSection"></div>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
     let paymentRows = [];
+    let deferredActive = false;
 
-    // פונקציה המופעלת בזמן טעינת הדף ליצירת שורה אחת באופן אוטומטי
     window.onload = function() {
         addPaymentRow();
     };
 
-  function addPaymentRow() {
+    function addPaymentRow() {
         const rowId = Date.now();
         paymentRows.push({ id: rowId, amount: 0, payments: 0 });
 
@@ -226,24 +259,22 @@
         updateDeleteButtons();
     }
 
-    // פונקציה לעדכון כל כפתורי המחיקה, שתשאיר את האיקס בכל השורות חוץ מהשורה האחרונה
     function updateDeleteButtons() {
         const rowContainers = document.querySelectorAll('.row-container');
         rowContainers.forEach((row, index) => {
             const deleteButton = row.querySelector('.delete-row-btn');
             if (index === rowContainers.length - 1) {
-                deleteButton.style.display = 'none';  // השורה האחרונה - ללא כפתור מחיקה
+                deleteButton.style.display = 'none';
             } else {
-                deleteButton.style.display = 'inline'; // שאר השורות - עם כפתור מחיקה
+                deleteButton.style.display = 'inline';
             }
         });
     }
 
-  function updatePaymentRow(rowId, field, value) {
+    function updatePaymentRow(rowId, field, value) {
         const row = paymentRows.find(r => r.id === rowId);
         row[field] = parseFloat(value) || 0;
 
-        // בדיקה אם שני השדות בשורה מכילים ערכים ואז פתיחת שורה חדשה
         if (row.amount > 0 && row.payments > 0) {
             const emptyRows = paymentRows.filter(r => r.amount === 0 || r.payments === 0);
             if (emptyRows.length === 0) {
@@ -275,6 +306,7 @@
         const groupedPayments = {};
         let totalAdditions = 0;
         let totalPurchaseAmount = 0;
+        let deferredPaymentTotal = 0;
 
         const validRows = paymentRows.filter(row => row.amount > 0 && row.payments > 0);
 
@@ -294,14 +326,17 @@
             const resultsTable = generateResultsTable(amount, payments);
             resultsContainer.appendChild(resultsTable);
 
-            // עדכון הסכומים הכוללים
             const { paymentAddition } = calculatePaymentDetails(amount, payments);
             totalAdditions += paymentAddition;
             totalPurchaseAmount += amount;
         });
 
-        // עדכון הסכום הכולל
-        updateTotalSection(totalAdditions, totalPurchaseAmount);
+        if (deferredActive) {
+            const deferredMonths = parseFloat(document.getElementById('deferredMonths').value) || 0;
+            deferredPaymentTotal = deferredMonths * 0.006 * totalPurchaseAmount;
+        }
+
+        updateTotalSection(totalAdditions, totalPurchaseAmount, deferredPaymentTotal);
     }
 
     function generateResultsTable(purchaseAmount, installments) {
@@ -309,13 +344,13 @@
         table.innerHTML = `
             <tr><th colspan="2">תוצאות עבור תשלום  ${installments}</th></tr>
             <tr><td>סך תשלום</td><td>${purchaseAmount}</td></tr>
-                   `;
+        `;
 
         const { monthlyInterest, paymentAddition, totalAmountCollected } = calculatePaymentDetails(purchaseAmount, installments);
 
         table.innerHTML += `
             <tr><td>ריבית חודשית מתואמת</td><td>${(monthlyInterest * 100).toFixed(2)}%</td></tr>
-            <tr class="hidden"><td>גובה כל תשלום</td><td></td></tr> <!-- מוסתר -->
+            <tr class="hidden"><td>גובה כל תשלום</td><td></td></tr>
             <tr><td>סכום כולל שייגבה</td><td>${totalAmountCollected.toFixed(2)}</td></tr>
             <tr><td>תוספת ריבית</td><td>${paymentAddition.toFixed(2)}</td></tr>
         `;
@@ -333,18 +368,51 @@
         return { monthlyInterest, paymentAddition, totalAmountCollected };
     }
 
-    function updateTotalSection(totalAdditions, totalPurchaseAmount) {
+    function updateTotalSection(totalAdditions, totalPurchaseAmount, deferredPaymentTotal) {
         const totalWithInterest = totalPurchaseAmount + totalAdditions;
+        const totalWithDeferred = totalWithInterest + deferredPaymentTotal;
         const totalSection = document.getElementById('totalSection');
-        totalSection.innerHTML = `
+        
+        let totalHTML = `
             <div>סך כל התוספות: ${totalAdditions.toFixed(2)}</div>
-            <div>סך כל הקניה: ${totalPurchaseAmount.toFixed(2)}</div>
-            <div>סך הכל קניה עם ריבית: ${totalWithInterest.toFixed(2)}</div>
         `;
+
+        if (deferredActive && deferredPaymentTotal > 0) {
+            totalHTML += `<div>סך פירעון דחוי: ${deferredPaymentTotal.toFixed(2)}</div>`;
+        }
+
+        totalHTML += `
+            <div>סך כל הקניה: ${totalPurchaseAmount.toFixed(2)}</div>
+            <div>סך הכל קניה עם ריבית: ${totalWithDeferred.toFixed(2)}</div>
+        `;
+
+        totalSection.innerHTML = totalHTML;
+    }
+
+    function toggleDeferredMonths() {
+        deferredActive = !deferredActive;
+        const deferredInput = document.getElementById('deferredMonths');
+        const deferredNoneText = document.getElementById('deferredNoneText');
+        const deferredIcon = document.getElementById('deferredIcon');
+        
+        if (deferredActive) {
+            deferredInput.classList.remove('hidden');
+            deferredNoneText.classList.add('hidden');
+            deferredIcon.classList.remove('fa-toggle-off');
+            deferredIcon.classList.add('fa-toggle-on');
+        } else {
+            deferredInput.classList.add('hidden');
+            deferredNoneText.classList.remove('hidden');
+            deferredIcon.classList.remove('fa-toggle-on');
+            deferredIcon.classList.add('fa-toggle-off');
+            document.getElementById('deferredMonths').value = '';
+        }
+
+        calculateResults();
     }
 
     function shareResults() {
-        html2canvas(document.getElementById('resultsContainer')).then(canvas => {
+        html2canvas(document.getElementById('contentToSave')).then(canvas => {
             canvas.toBlob(blob => {
                 const url = URL.createObjectURL(blob);
                 if (navigator.share) {
@@ -364,7 +432,7 @@
     }
 
     function saveResults() {
-        html2canvas(document.getElementById('resultsContainer')).then(canvas => {
+        html2canvas(document.getElementById('contentToSave')).then(canvas => {
             canvas.toBlob(blob => {
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
