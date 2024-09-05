@@ -64,6 +64,7 @@
             margin: 0;
         }
         input[type="number"] {
+	    font-family: 'Alef', sans-serif;
             -moz-appearance: textfield;
         }
         .hidden {
@@ -85,6 +86,7 @@
             position: relative;
         }
         .button-container button .tooltip {
+	    font-family: 'Alef', sans-serif;
             visibility: hidden;
             background-color: #333;
             color: #fff;
@@ -93,7 +95,7 @@
             border-radius: 5px;
             position: absolute;
             top: 120%;
-            left: 50%;
+            left: -40%;
             transform: translateX(-50%);
             opacity: 0;
             transition: opacity 0.3s;
@@ -159,7 +161,7 @@
             חודשי דחיה
         </td>
         <td id="deferredMonthsContainer">
-            <input type="number" id="deferredMonths" value="0" oninput="calculate()" class="hidden" />
+            <input type="number" id="deferredMonths" oninput="calculate()" class="hidden" />
             <span id="deferredNoneText">ללא</span>
         </td>
     </tr>
@@ -256,7 +258,7 @@ function toggleDeferredMonths() {
         deferredIcon.classList.add('fa-toggle-off');
         deferredMonthsInput.classList.add('hidden');
         deferredNoneText.classList.remove('hidden');
-        deferredMonthsInput.value = 0;
+        deferredMonthsInput.value = "";
         deferredSection.classList.add('hidden');
         deferredAdditionRow.classList.add('hidden'); // הסתרת השורה תוספת דחוי
         calculate();
