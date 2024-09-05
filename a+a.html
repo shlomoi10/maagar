@@ -43,29 +43,26 @@
         td {
             font-size: 16px;
         }
-        /* עיצוב לתיבות הקלט המודרניות */
         input[type="number"] {
             width: 90%;
             padding: 10px;
             margin: 5px;
-            background-color: #eaeef3; /* רקע מודגש קצת יותר מצבע הדף */
-            border: none; /* הסרת המסגרת */
+            background-color: #eaeef3;
+            border: none;
             border-radius: 8px;
             box-sizing: border-box;
             font-size: 16px;
-            -moz-appearance: textfield; /* הסרת החיצים ב-Firefox */
+            -moz-appearance: textfield;
         }
         input[type="number"]:focus {
-            background-color: #d0d7e2; /* צבע רקע קצת כהה יותר במצב פוקוס */
+            background-color: #d0d7e2;
             outline: none;
         }
-        /* הסרת החיצים ב-Chrome, Safari, Edge, Opera */
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
-        /* הסרת החיצים ב-IE ו-Edge הישן */
         input[type="number"] {
             -moz-appearance: textfield;
         }
@@ -77,7 +74,7 @@
             top: 20px;
             right: 20px;
             display: flex;
-            gap: 10px; /* רווח בין הכפתורים */
+            gap: 10px;
         }
         .button-container button {
             background-color: transparent;
@@ -87,7 +84,6 @@
             color: #3f51b5;
             position: relative;
         }
-        /* עיצוב הטולטיפ שיוצג מתחת לאייקון */
         .button-container button .tooltip {
             visibility: hidden;
             background-color: #333;
@@ -96,15 +92,15 @@
             padding: 5px;
             border-radius: 5px;
             position: absolute;
-            top: 120%; /* מופיע מתחת לכפתור */
+            top: 120%;
             left: 50%;
             transform: translateX(-50%);
             opacity: 0;
             transition: opacity 0.3s;
             z-index: 1;
             white-space: nowrap;
-            max-width: 150px; /* הגבלת רוחב הטולטיפ */
-            word-wrap: break-word; /* אפשרות לפיצול טקסט ארוך */
+            max-width: 150px;
+            word-wrap: break-word;
         }
         .button-container button:hover .tooltip {
             visibility: visible;
@@ -147,11 +143,11 @@
 <div class="button-container">
     <button onclick="saveResults()">
         <i class="fas fa-save"></i>
-        <span class="tooltip">שמור תוצאה</span> <!-- טולטיפ -->
+        <span class="tooltip">שמור תוצאה</span>
     </button>
     <button onclick="shareResults()">
         <i class="fas fa-share-alt"></i>
-        <span class="tooltip">שתף תוצאה</span> <!-- טולטיפ -->
+        <span class="tooltip">שתף תוצאה</span>
     </button>
 </div>
 
@@ -163,7 +159,7 @@
             חודשי דחיה
         </td>
         <td id="deferredMonthsContainer">
-            <input type="number" id="deferredMonths" value="0" oninput="calculate()" class="hidden" /> <!-- ערך ברירת מחדל 0 -->
+            <input type="number" id="deferredMonths" value="0" oninput="calculate()" class="hidden" />
             <span id="deferredNoneText">ללא</span>
         </td>
     </tr>
@@ -175,14 +171,14 @@
         <td>מספר תשלומים</td>
         <td><input type="number" id="installments" oninput="calculate()" /></td>
     </tr>
-    <tr class="hidden"> <!-- הסתרת השורה -->
+    <tr class="hidden">
         <td>סך הכל חודשים</td>
         <td id="totalMonths"></td>
     </tr>
     <tr>
         <th colspan="2">עמלת אשראי</th>
     </tr>
-    <tr class="hidden"> <!-- הסתרת השורה -->
+    <tr class="hidden">
         <td>ריבית שנתית (באחוזים)</td>
         <td id="annualInterest">7.4%</td>
     </tr>
@@ -199,17 +195,17 @@
         <td id="totalAmountCollected"></td>
     </tr>
     <tr class="result-row hidden">
-        <td>תוספת תשלומים</td>
+        <td>תוספת ריבית</td>
         <td id="paymentAddition"></td>
     </tr>
-    <tr id="deferredSection" class="hidden"> <!-- הסתרת עמודה תשלום דחוי כברירת מחדל -->
+    <tr id="deferredSection" class="hidden">
         <th colspan="2">עמלת תשלום דחוי</th>
     </tr>
-    <tr class="result-row hidden">
+    <tr class="hidden"> <!-- תמיד מוסתרת -->
         <td>סכום ההתפשרות [ריבית]</td>
         <td id="defermentInterest">0.006</td>
     </tr>
-    <tr class="result-row hidden">
+    <tr class="hidden" id="deferredAdditionRow"> <!-- תוספת דחוי -->
         <td>תוספת דחוי</td>
         <td id="deferredAddition"></td>
     </tr>
@@ -246,45 +242,46 @@ function toggleDeferredMonths() {
     const deferredNoneText = document.getElementById('deferredNoneText');
     const deferredRow = document.getElementById('deferredRow');
     const deferredSection = document.getElementById('deferredSection');
+    const deferredAdditionRow = document.getElementById('deferredAdditionRow');
 
     if (deferredMonthsInput.classList.contains('hidden')) {
         deferredIcon.classList.remove('fa-toggle-off');
         deferredIcon.classList.add('fa-toggle-on');
         deferredMonthsInput.classList.remove('hidden');
         deferredNoneText.classList.add('hidden');
-        deferredSection.classList.remove('hidden'); // הצגת עמודת תשלום דחוי
+        deferredSection.classList.remove('hidden');
+        deferredAdditionRow.classList.remove('hidden'); // הצגת השורה תוספת דחוי
     } else {
         deferredIcon.classList.remove('fa-toggle-on');
         deferredIcon.classList.add('fa-toggle-off');
         deferredMonthsInput.classList.add('hidden');
         deferredNoneText.classList.remove('hidden');
         deferredMonthsInput.value = 0;
-        deferredSection.classList.add('hidden'); // הסתרת עמודת תשלום דחוי
+        deferredSection.classList.add('hidden');
+        deferredAdditionRow.classList.add('hidden'); // הסתרת השורה תוספת דחוי
         calculate();
     }
 }
 
 function calculate() {
-    // קבלת הערכים מהשדות
     const purchaseAmount = parseFloat(document.getElementById("purchaseAmount").value) || 0;
     const installments = parseFloat(document.getElementById("installments").value) || 0;
     const deferredMonths = parseFloat(document.getElementById("deferredMonths").value) || 0;
-    const annualInterest = 7.4 / 100; // קבוע
-    const defermentInterest = 0.006; // קבוע
+    const annualInterest = 7.4 / 100;
+    const defermentInterest = 0.006;
 
-    // הצגת או הסתרת החלק של עמלת תשלום דחוי
     const deferredSection = document.getElementById("deferredSection");
-    const deferredRows = document.querySelectorAll(".result-row.hidden");
+    const deferredAdditionRow = document.getElementById("deferredAdditionRow");
+
     if (deferredMonths === 0) {
         deferredSection.classList.add('hidden');
-        deferredRows.forEach(row => row.classList.add('hidden'));
+        deferredAdditionRow.classList.add('hidden');
     } else {
         deferredSection.classList.remove('hidden');
+        deferredAdditionRow.classList.remove('hidden');
     }
 
-    // בדיקה אם כל השדות מכילים ערך
     if (purchaseAmount > 0 && installments > 0) {
-        // חישובים
         const totalMonths = installments + deferredMonths;
         const monthlyInterest = Math.pow((annualInterest + 1), (1/12)) - 1;
         const paymentAmount = Math.abs(-purchaseAmount * (monthlyInterest / (1 - Math.pow(1 + monthlyInterest, -installments))));
@@ -300,7 +297,6 @@ function calculate() {
             clearingFee = purchaseAmount / 100;
             finalAmount = purchaseAmount + clearingFee;
 
-            // הצגת תוצאות עבור מקרה של פחות משלושה חודשים
             document.querySelectorAll(".result-row").forEach(row => row.classList.add('hidden'));
             document.getElementById("clearingFee").textContent = clearingFee.toFixed(2);
             document.getElementById("finalAmountText").textContent = finalAmount.toFixed(2);
@@ -310,7 +306,6 @@ function calculate() {
             clearingFee = amountBeforeFee / 100;
             finalAmount = amountBeforeFee + clearingFee;
 
-            // הצגת תוצאות עבור מקרה של יותר משלושה חודשים
             document.querySelectorAll(".result-row").forEach(row => row.classList.remove('hidden'));
             document.getElementById("totalMonths").textContent = totalMonths.toFixed(2);
             document.getElementById("monthlyInterest").textContent = (monthlyInterest * 100).toFixed(2) + '%';
@@ -324,7 +319,6 @@ function calculate() {
             document.getElementById("finalAmountText").textContent = finalAmount.toFixed(2);
         }
     } else {
-        // הסתרת כל התוצאות אם אין ערכים בכל השדות
         document.querySelectorAll(".result-row").forEach(row => row.classList.add('hidden'));
     }
 }
@@ -332,8 +326,7 @@ function calculate() {
 function shareResults() {
     const deferredRow = document.getElementById('deferredRow');
     const deferredIcon = document.getElementById('deferredIcon');
-    
-    // אם חודשי דחיה כבוי, מסתירים את השורה לפני השיתוף
+
     if (deferredIcon.classList.contains('fa-toggle-off')) {
         deferredRow.classList.add('hidden');
     }
@@ -343,14 +336,12 @@ function shareResults() {
             const url = URL.createObjectURL(blob);
 
             if (navigator.share) {
-                // פתיחת חלון השיתוף של אנדרואיד
                 navigator.share({
                     title: 'תוצאות חישוב סכום קניה',
                     text: 'תוצאות החישוב כפי שנוצרו באתר.',
                     files: [new File([blob], 'תוצאות.png', { type: 'image/png' })]
                 }).catch(console.error);
             } else {
-                // שמירה רגילה אם השיתוף לא נתמך
                 const a = document.createElement('a');
                 a.href = url;
                 a.download = 'תוצאות.png';
@@ -360,7 +351,6 @@ function shareResults() {
             URL.revokeObjectURL(url);
         });
 
-        // אם חודשי דחיה היה כבוי, מחזירים את השורה לאחר השיתוף
         if (deferredIcon.classList.contains('fa-toggle-off')) {
             deferredRow.classList.remove('hidden');
         }
@@ -370,8 +360,7 @@ function shareResults() {
 function saveResults() {
     const deferredRow = document.getElementById('deferredRow');
     const deferredIcon = document.getElementById('deferredIcon');
-    
-    // אם חודשי דחיה כבוי, מסתירים את השורה לפני שמירת התמונה
+
     if (deferredIcon.classList.contains('fa-toggle-off')) {
         deferredRow.classList.add('hidden');
     }
@@ -380,7 +369,6 @@ function saveResults() {
         canvas.toBlob(blob => {
             const url = URL.createObjectURL(blob);
 
-            // יצירת קישור להורדה ושמירה
             const a = document.createElement('a');
             a.href = url;
             a.download = 'תוצאות.png';
@@ -389,7 +377,6 @@ function saveResults() {
             URL.revokeObjectURL(url);
         });
 
-        // אם חודשי דחיה היה כבוי, מחזירים את השורה לאחר שמירת התמונה
         if (deferredIcon.classList.contains('fa-toggle-off')) {
             deferredRow.classList.remove('hidden');
         }
