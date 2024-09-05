@@ -43,32 +43,72 @@
         td {
             font-size: 16px;
         }
+        /* עיצוב לתיבות הקלט המודרניות */
         input[type="number"] {
             width: 90%;
-            padding: 8px;
+            padding: 10px;
             margin: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            background-color: #eaeef3; /* רקע מודגש קצת יותר מצבע הדף */
+            border: none; /* הסרת המסגרת */
+            border-radius: 8px;
             box-sizing: border-box;
+            font-size: 16px;
+            -moz-appearance: textfield; /* הסרת החיצים ב-Firefox */
         }
         input[type="number"]:focus {
-            border-color: #3f51b5;
+            background-color: #d0d7e2; /* צבע רקע קצת כהה יותר במצב פוקוס */
             outline: none;
+        }
+        /* הסרת החיצים ב-Chrome, Safari, Edge, Opera */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        /* הסרת החיצים ב-IE ו-Edge הישן */
+        input[type="number"] {
+            -moz-appearance: textfield;
         }
         .hidden {
             display: none;
         }
-        .share-button {
+        .button-container {
             position: absolute;
             top: 20px;
             right: 20px;
+            display: flex;
+            gap: 10px; /* רווח בין הכפתורים */
         }
-        .share-button button {
+        .button-container button {
             background-color: transparent;
             border: none;
             cursor: pointer;
             font-size: 24px;
             color: #3f51b5;
+            position: relative;
+        }
+        /* עיצוב הטולטיפ שיוצג מתחת לאייקון */
+        .button-container button .tooltip {
+            visibility: hidden;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 5px;
+            border-radius: 5px;
+            position: absolute;
+            top: 120%; /* מופיע מתחת לכפתור */
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1;
+            white-space: nowrap;
+            max-width: 150px; /* הגבלת רוחב הטולטיפ */
+            word-wrap: break-word; /* אפשרות לפיצול טקסט ארוך */
+        }
+        .button-container button:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
         }
         .home-button {
             display: block;
@@ -103,10 +143,15 @@
     <a href="index.html">ראשי</a>
 </div>
 
-<!-- לחצן שיתוף -->
-<div class="share-button">
+<!-- לחצני שיתוף ושמירה -->
+<div class="button-container">
+    <button onclick="saveResults()">
+        <i class="fas fa-save"></i>
+        <span class="tooltip">שמור תוצאה</span> <!-- טולטיפ -->
+    </button>
     <button onclick="shareResults()">
         <i class="fas fa-share-alt"></i>
+        <span class="tooltip">שתף תוצאה</span> <!-- טולטיפ -->
     </button>
 </div>
 
@@ -157,7 +202,7 @@
         <td>תוספת תשלומים</td>
         <td id="paymentAddition"></td>
     </tr>
-    <tr id="deferredSection">
+    <tr id="deferredSection" class="hidden"> <!-- הסתרת עמודה תשלום דחוי כברירת מחדל -->
         <th colspan="2">עמלת תשלום דחוי</th>
     </tr>
     <tr class="result-row hidden">
@@ -200,18 +245,21 @@ function toggleDeferredMonths() {
     const deferredMonthsInput = document.getElementById('deferredMonths');
     const deferredNoneText = document.getElementById('deferredNoneText');
     const deferredRow = document.getElementById('deferredRow');
+    const deferredSection = document.getElementById('deferredSection');
 
     if (deferredMonthsInput.classList.contains('hidden')) {
         deferredIcon.classList.remove('fa-toggle-off');
         deferredIcon.classList.add('fa-toggle-on');
         deferredMonthsInput.classList.remove('hidden');
         deferredNoneText.classList.add('hidden');
+        deferredSection.classList.remove('hidden'); // הצגת עמודת תשלום דחוי
     } else {
         deferredIcon.classList.remove('fa-toggle-on');
         deferredIcon.classList.add('fa-toggle-off');
         deferredMonthsInput.classList.add('hidden');
         deferredNoneText.classList.remove('hidden');
         deferredMonthsInput.value = 0;
+        deferredSection.classList.add('hidden'); // הסתרת עמודת תשלום דחוי
         calculate();
     }
 }
@@ -294,15 +342,54 @@ function shareResults() {
         canvas.toBlob(blob => {
             const url = URL.createObjectURL(blob);
 
-            // יצירת קישור להורדה ושיתוף
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'תוצאות.png';
-            a.click();
+            if (navigator.share) {
+                // פתיחת חלון השיתוף של אנדרואיד
+                navigator.share({
+                    title: 'תוצאות חישוב סכום קניה',
+                    text: 'תוצאות החישוב כפי שנוצרו באתר.',
+                    files: [new File([blob], 'תוצאות.png', { type: 'image/png' })]
+                }).catch(console.error);
+            } else {
+                // שמירה רגילה אם השיתוף לא נתמך
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'תוצאות.png';
+                a.click();
+            }
+
             URL.revokeObjectURL(url);
         });
 
         // אם חודשי דחיה היה כבוי, מחזירים את השורה לאחר השיתוף
+        if (deferredIcon.classList.contains('fa-toggle-off')) {
+            deferredRow.classList.remove('hidden');
+        }
+    });
+}
+
+function saveResults() {
+    const deferredRow = document.getElementById('deferredRow');
+    const deferredIcon = document.getElementById('deferredIcon');
+    
+    // אם חודשי דחיה כבוי, מסתירים את השורה לפני שמירת התמונה
+    if (deferredIcon.classList.contains('fa-toggle-off')) {
+        deferredRow.classList.add('hidden');
+    }
+
+    html2canvas(document.getElementById('resultsTable')).then(canvas => {
+        canvas.toBlob(blob => {
+            const url = URL.createObjectURL(blob);
+
+            // יצירת קישור להורדה ושמירה
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'תוצאות.png';
+            a.click();
+
+            URL.revokeObjectURL(url);
+        });
+
+        // אם חודשי דחיה היה כבוי, מחזירים את השורה לאחר שמירת התמונה
         if (deferredIcon.classList.contains('fa-toggle-off')) {
             deferredRow.classList.remove('hidden');
         }
