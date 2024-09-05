@@ -18,7 +18,7 @@
 
         h1 {
             font-size: 32px;
-            color: #4CAF50;
+            color: #3f51b5; /* צבע סגול ראשי */
             margin-bottom: 20px;
         }
 
@@ -30,8 +30,8 @@
             padding: 15px 40px;
             font-size: 18px;
             font-weight: bold;
-            color: #4CAF50;
-            border: 2px solid #4CAF50;
+            color: #3f51b5; /* צבע סגול */
+            border: 2px solid #3f51b5; /* גבול סגול */
             border-radius: 8px;
             overflow: hidden;
             text-decoration: none;
@@ -46,7 +46,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #4CAF50;
+            background-color: #3f51b5; /* צבע רקע סגול בהיר */
             transform: translateY(-50%) scaleY(0);
             transition: transform 0.4s ease;
             z-index: 0;
@@ -63,7 +63,7 @@
         .styled-button svg {
             width: 20px;
             height: 20px;
-            margin-right: 10px; /* Increased margin for better spacing */
+            margin-right: 10px;
             transition: transform 0.3s ease;
             transform: translateX(100%);
             opacity: 0;
@@ -78,6 +78,11 @@
         .styled-button span {
             position: relative;
             z-index: 1;
+        }
+
+        /* Additional style for hover effect */
+        .styled-button:hover span {
+            color: white;
         }
     </style>
 </head>
