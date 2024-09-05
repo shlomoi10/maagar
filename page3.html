@@ -6,49 +6,53 @@
     <title>עמלות תשלומים אשראי וצ'קים</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap');
-.tab-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.tab-buttons {
-    display: flex;
-    justify-content: center;
-}
-
-.tab-buttons button {
-    padding: 10px 20px;
-    cursor: pointer;
-    border: none;
-    background-color: #e0e0e0;
-    margin: 0 5px;
-    font-size: 16px;
-    font-weight: bold;
-    color: #555;
-    transition: background-color 0.3s, color 0.3s;
-    border-radius: 8px 8px 0 0;
-}
-
-.tab-buttons button.active {
-    background-color: #4CAF50;
-    color: white;
-}
-
-.tab-buttons button:hover:not(.active) {
-    background-color: #cccccc;
-}
 
         body {
             font-family: 'Heebo', sans-serif;
             direction: rtl;
             text-align: center;
             margin: 20px;
+            background-color: #f4f4f9; /* רקע כללי */
         }
 
         h1 {
-            color: #333;
+            color: #3f51b5; /* צבע כותרת סגול */
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .tab-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            justify-content: center;
+        }
+
+        .tab-buttons button {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background-color: #e0e0e0;
+            margin: 0 5px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #555;
+            transition: background-color 0.3s, color 0.3s;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .tab-buttons button.active {
+            background-color: #3f51b5; /* צבע סגול */
+            color: white;
+        }
+
+        .tab-buttons button:hover:not(.active) {
+            background-color: #cccccc;
         }
 
         form {
@@ -60,27 +64,35 @@
         label {
             display: block;
             margin-top: 10px;
+            font-size: 16px;
+            color: #555;
         }
 
         input[type="number"] {
-            padding: 5px;
+            padding: 8px;
             width: 150px;
             margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            text-align: center;
         }
 
         button {
             font-family: 'Heebo', sans-serif;
             margin-top: 10px;
             padding: 10px 20px;
-            background-color: #4CAF50;
+            background-color: #3f51b5;
             color: white;
             border: none;
             cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
         }
 
-            button:hover {
-                background-color: #45a049;
-            }
+        button:hover {
+            background-color: #354495;
+        }
 
         .results {
             display: none;
@@ -88,16 +100,16 @@
             padding: 10px;
             margin-top: 20px;
             border-radius: 10px;
-            background-color: #f9f9f9;
+            background-color: #fff;
             text-align: center;
-            width: 40%;
+            width: 60%;
             margin-left: auto;
             margin-right: auto;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         .result-item {
-            margin-top: 5px;
+            margin-top: 10px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -107,12 +119,18 @@
             background-color: #ddd;
             border: none;
             cursor: pointer;
-            padding: 2px 5px;
+            padding: 5px 10px;
             margin-left: 10px;
-            position: relative;
+            border-radius: 4px;
+            color: #555;
+            font-size: 14px;
             display: flex;
             align-items: center;
-            justify-content: center;
+        }
+
+        .copy-button:hover {
+            background-color: #3f51b5;
+            color: white;
         }
 
         .copy-notification {
@@ -122,13 +140,15 @@
             font-size: 16px;
         }
 
-            .copy-notification.show {
-                display: inline;
-            }
+        .copy-notification.show {
+            display: inline;
+        }
 
         .result-text {
             flex: 1;
-            text-align: center;
+            text-align: right;
+            font-size: 16px;
+            color: #333;
         }
     </style>
     <script>
@@ -170,10 +190,9 @@
     </script>
 </head>
 <body>
-        <div class="tab-container">
+    <div class="tab-container">
         <div class="tab-buttons">
             <button class="tab-button" onclick="location.href='index.html'">ראשי</button>
-
         </div>
     </div>
 
