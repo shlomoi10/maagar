@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>עמלות אשראי</title>
+    <link href="https://fonts.googleapis.com/css2?family=Alef:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Alef', sans-serif;
+            direction: rtl;
+            text-align: right;
+            margin: 20px;
+            background-color: #f4f4f9;
+        }
+        h2 {
+            color: #333;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        th, td {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #3f51b5;
+            color: #fff;
+            font-size: 18px;
+        }
+        td {
+            font-size: 16px;
+        }
+        input[type="number"] {
+            width: 90%;
+            padding: 10px;
+            margin: 5px;
+            background-color: #eaeef3;
+            border: none;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+            -moz-appearance: textfield;
+        }
+        input[type="number"]:focus {
+            background-color: #d0d7e2;
+            outline: none;
+        }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            font-family: 'Alef', sans-serif;
+        }
+        .hidden {
+            display: none;
+        }
+        .add-row-btn {
+            margin: 10px 0;
+            padding: 10px 20px;
+            background-color: #3f51b5;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            margin-left: auto;
+        }
+        .row-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .delete-row-btn {
+            cursor: pointer;
+            color: red;
+            font-size: 20px;
+        }
+        .results-container {
+            margin-top: 20px;
+        }
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .button-container button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: #3f51b5;
+            position: relative;
+        }
+        .button-container button .tooltip {
+            font-family: 'Alef', sans-serif;
+            visibility: hidden;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 5px;
+            border-radius: 5px;
+            position: absolute;
+            top: 120%;
+            left: -40%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1;
+            white-space: nowrap;
+            max-width: 150px;
+            word-wrap: break-word;
+        }
+        .button-container button:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        .total-section {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            max-width: 600px; /* רוחב הכרטיס מוגדר כמו הטבלה */
+            margin: 0 auto;  /* מרכז את הכרטיס */
+        }
+        .row-inputs {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .row-inputs input {
+            flex: 1;
+        }
+        #calculate-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #3f51b5;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        #calculate-btn.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+
+<h2>עמלות צ'קים</h2>
+
+<div class="button-container">
+    <button onclick="saveResults()">
+        <i class="fas fa-save"></i>
+        <span class="tooltip">שמור תוצאה</span>
+    </button>
+    <button onclick="shareResults()">
+        <i class="fas fa-share-alt"></i>
+        <span class="tooltip">שתף תוצאה</span>
+    </button>
+</div>
+
+<div id="paymentRowsContainer" class="card"></div>
+
+<!-- כפתור לחישוב -->
+<button id="calculate-btn" onclick="calculateResults()">חשב</button>
+
+<!-- תוצאות חישוב -->
+<div id="resultsContainer" class="results-container"></div>
+
+<div class="total-section" id="totalSection"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+    let paymentRows = [];
+
+    // פונקציה המופעלת בזמן טעינת הדף ליצירת שורה אחת באופן אוטומטי
+    window.onload = function() {
+        addPaymentRow();
+    };
+
+  function addPaymentRow() {
+        const rowId = Date.now();
+        paymentRows.push({ id: rowId, amount: 0, payments: 0 });
+
+        const rowContainer = document.createElement('div');
+        rowContainer.classList.add('row-container');
+        rowContainer.setAttribute('id', 'row-' + rowId);
+
+        rowContainer.innerHTML = `
+            <div class="row-inputs">
+                <input type="number" placeholder="סכום" oninput="updatePaymentRow(${rowId}, 'amount', this.value)" />
+                <input type="number" placeholder="מספר תשלומים" oninput="updatePaymentRow(${rowId}, 'payments', this.value)" />
+                <span class="delete-row-btn" onclick="deletePaymentRow(${rowId})">&times;</span>
+            </div>
+        `;
+
+        document.getElementById('paymentRowsContainer').appendChild(rowContainer);
+
+        updateDeleteButtons();
+    }
+
+    // פונקציה לעדכון כל כפתורי המחיקה, שתשאיר את האיקס בכל השורות חוץ מהשורה האחרונה
+    function updateDeleteButtons() {
+        const rowContainers = document.querySelectorAll('.row-container');
+        rowContainers.forEach((row, index) => {
+            const deleteButton = row.querySelector('.delete-row-btn');
+            if (index === rowContainers.length - 1) {
+                deleteButton.style.display = 'none';  // השורה האחרונה - ללא כפתור מחיקה
+            } else {
+                deleteButton.style.display = 'inline'; // שאר השורות - עם כפתור מחיקה
+            }
+        });
+    }
+
+  function updatePaymentRow(rowId, field, value) {
+        const row = paymentRows.find(r => r.id === rowId);
+        row[field] = parseFloat(value) || 0;
+
+        // בדיקה אם שני השדות בשורה מכילים ערכים ואז פתיחת שורה חדשה
+        if (row.amount > 0 && row.payments > 0) {
+            const emptyRows = paymentRows.filter(r => r.amount === 0 || r.payments === 0);
+            if (emptyRows.length === 0) {
+                addPaymentRow();
+            }
+        }
+
+        updateCalculateButtonState();
+        updateDeleteButtons();
+    }
+
+    function deletePaymentRow(rowId) {
+        paymentRows = paymentRows.filter(r => r.id !== rowId);
+        document.getElementById('row-' + rowId).remove();
+        updateCalculateButtonState();
+    }
+
+    function updateCalculateButtonState() {
+        const filledRows = paymentRows.filter(row => row.amount > 0 && row.payments > 0);
+        const calculateBtn = document.getElementById('calculate-btn');
+        if (filledRows.length > 0) {
+            calculateBtn.classList.add('active');
+        } else {
+            calculateBtn.classList.remove('active');
+        }
+    }
+
+    function calculateResults() {
+        const groupedPayments = {};
+        let totalAdditions = 0;
+        let totalPurchaseAmount = 0;
+
+        const validRows = paymentRows.filter(row => row.amount > 0 && row.payments > 0);
+
+        validRows.forEach(row => {
+            if (groupedPayments[row.payments]) {
+                groupedPayments[row.payments] += row.amount;
+            } else {
+                groupedPayments[row.payments] = row.amount;
+            }
+        });
+
+        const resultsContainer = document.getElementById('resultsContainer');
+        resultsContainer.innerHTML = '';
+
+        Object.keys(groupedPayments).forEach(payments => {
+            const amount = groupedPayments[payments];
+            const resultsTable = generateResultsTable(amount, payments);
+            resultsContainer.appendChild(resultsTable);
+
+            // עדכון הסכומים הכוללים
+            const { paymentAddition } = calculatePaymentDetails(amount, payments);
+            totalAdditions += paymentAddition;
+            totalPurchaseAmount += amount;
+        });
+
+        // עדכון הסכום הכולל
+        updateTotalSection(totalAdditions, totalPurchaseAmount);
+    }
+
+    function generateResultsTable(purchaseAmount, installments) {
+        const table = document.createElement('table');
+        table.innerHTML = `
+            <tr><th colspan="2">תוצאות עבור תשלום  ${installments}</th></tr>
+            <tr><td>סך תשלום</td><td>${purchaseAmount}</td></tr>
+                   `;
+
+        const { monthlyInterest, paymentAddition, totalAmountCollected } = calculatePaymentDetails(purchaseAmount, installments);
+
+        table.innerHTML += `
+            <tr><td>ריבית חודשית מתואמת</td><td>${(monthlyInterest * 100).toFixed(2)}%</td></tr>
+            <tr class="hidden"><td>גובה כל תשלום</td><td></td></tr> <!-- מוסתר -->
+            <tr><td>סכום כולל שייגבה</td><td>${totalAmountCollected.toFixed(2)}</td></tr>
+            <tr><td>תוספת ריבית</td><td>${paymentAddition.toFixed(2)}</td></tr>
+        `;
+
+        return table;
+    }
+
+    function calculatePaymentDetails(purchaseAmount, installments) {
+        const annualInterest = 7.4 / 100;
+        const monthlyInterest = Math.pow((annualInterest + 1), (1/12)) - 1;
+        const paymentAmount = Math.abs(-purchaseAmount * (monthlyInterest / (1 - Math.pow(1 + monthlyInterest, -installments))));
+        const totalAmountCollected = Math.abs(paymentAmount * installments);
+        const paymentAddition = totalAmountCollected - purchaseAmount;
+
+        return { monthlyInterest, paymentAddition, totalAmountCollected };
+    }
+
+    function updateTotalSection(totalAdditions, totalPurchaseAmount) {
+        const totalWithInterest = totalPurchaseAmount + totalAdditions;
+        const totalSection = document.getElementById('totalSection');
+        totalSection.innerHTML = `
+            <div>סך כל התוספות: ${totalAdditions.toFixed(2)}</div>
+            <div>סך כל הקניה: ${totalPurchaseAmount.toFixed(2)}</div>
+            <div>סך הכל קניה עם ריבית: ${totalWithInterest.toFixed(2)}</div>
+        `;
+    }
+
+    function shareResults() {
+        html2canvas(document.getElementById('resultsContainer')).then(canvas => {
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'תוצאות חישוב סכום קניה',
+                        files: [new File([blob], 'תוצאות.png', { type: 'image/png' })]
+                    }).catch(console.error);
+                } else {
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'תוצאות.png';
+                    a.click();
+                }
+                URL.revokeObjectURL(url);
+            });
+        });
+    }
+
+    function saveResults() {
+        html2canvas(document.getElementById('resultsContainer')).then(canvas => {
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'תוצאות.png';
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        });
+    }
+</script>
+
+</body>
+</html>
