@@ -53,6 +53,29 @@
             font-size: 16px;
             -moz-appearance: textfield;
         }
+.deferred-label-container {
+        text-align: right;
+    padding-right: 10px; /* קצת רווח מצד ימין */
+}
+
+.deferred-input-container {
+   text-align: right;
+    padding-left: 10px; /* קצת רווח מצד שמאל */
+}
+
+#deferredIcon {
+    margin-left: 5px; /* מרווח בין האייקון לטקסט */
+}
+
+#deferredLabel {
+    vertical-align: middle; /* יישור הכיתוב לאמצע הגובה */
+}
+
+#deferredMonths {
+    width: 120px; /* גודל קבוע לשדה הקלט */
+    text-align: right; /* התוכן בתוך התיבה יהיה מיושר לימין */
+}
+
         input[type="number"]:focus {
             background-color: #d0d7e2;
             outline: none;
@@ -204,21 +227,24 @@
 </div>
 
 <div id="contentToSave">
-    <div id="paymentRowsContainer" class="card">
+  <div id="paymentRowsContainer" class="card">
 
-        <!-- השורה החדשה של חודשי דחיה -->
+    <!-- השורה החדשה של חודשי דחיה -->
+    <table>
         <tr id="deferredRow">
-            <td>
+            <td class="deferred-label-container">
                 <i id="deferredIcon" class="fas fa-toggle-off toggle-icon" onclick="toggleDeferredMonths()"></i>
-                חודשי דחיה
+                <span id="deferredLabel">חודשי דחיה</span>
             </td>
-            <td id="deferredMonthsContainer">
-                <input type="number" id="deferredMonths" oninput="calculateResults()" class="hidden" />
+            <td class="deferred-input-container">
+                <input type="number" id="deferredMonths" placeholder="מספר חודשים" oninput="calculateResults()" class="hidden" />
                 <span id="deferredNoneText">ללא</span>
             </td>
         </tr>
+    </table>
 
-    </div>
+</div>
+
 
     <!-- כפתור לחישוב -->
     <button id="calculate-btn" onclick="calculateResults()">חשב</button>
@@ -411,7 +437,8 @@
         calculateResults();
     }
 
-    function shareResults() {
+ function shareResults() {
+    toggleDeferredRowForImage(() => {
         html2canvas(document.getElementById('contentToSave')).then(canvas => {
             canvas.toBlob(blob => {
                 const url = URL.createObjectURL(blob);
@@ -429,9 +456,11 @@
                 URL.revokeObjectURL(url);
             });
         });
-    }
+    });
+}
 
-    function saveResults() {
+function saveResults() {
+    toggleDeferredRowForImage(() => {
         html2canvas(document.getElementById('contentToSave')).then(canvas => {
             canvas.toBlob(blob => {
                 const url = URL.createObjectURL(blob);
@@ -442,7 +471,25 @@
                 URL.revokeObjectURL(url);
             });
         });
+    });
+}
+
+function toggleDeferredRowForImage(callback) {
+    const deferredRow = document.getElementById('deferredRow');
+
+    if (!deferredActive) {
+        // אם הדחיה לא פעילה, מסתירים את השורה
+        deferredRow.style.display = 'none';
     }
+
+    callback();  // מבצע את הפונקציה שקיבלה
+
+    if (!deferredActive) {
+        // מחזירים את השורה לאחר השמירה/שיתוף
+        deferredRow.style.display = '';
+    }
+}
+
 </script>
 
 </body>
