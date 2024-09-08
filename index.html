@@ -2,6 +2,7 @@
 <html lang="he">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>חישובים</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap');
@@ -84,6 +85,21 @@
         .styled-button:hover span {
             color: white;
         }
+
+        /* Responsive adjustments for mobile screens */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 24px;
+            }
+            .styled-button {
+                padding: 10px 20px;
+                font-size: 16px;
+            }
+            svg {
+                width: 16px;
+                height: 16px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -106,7 +122,7 @@
         </svg>
     </a>
     <a href="page3.html" class="styled-button">
-        <span>פרעון דחוי (לא שימושי)</span>
+        <span>פרעון דחוי</span>
         <!-- Deferred payment icon (clock) -->
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <circle cx="12" cy="12" r="10" stroke-width="2"></circle>
