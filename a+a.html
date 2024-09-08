@@ -4,9 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>עמלות אשראי</title>
-    <!-- קישור לפונט יפה מגוגל -->
+
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Alef:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet"> <!-- קישור ל-FontAwesome -->
+
+    <!-- Bootstrap -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+    <!-- Animate.css -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+
+    <!-- AOS (Animate On Scroll) -->
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+
     <style>
         body {
             font-family: 'Alef', sans-serif;
@@ -14,13 +27,17 @@
             text-align: right;
             margin: 20px;
             background-color: #f4f4f9;
+            animation: fadeIn 2s ease-in-out;
         }
+
         h2 {
             color: #333;
             font-size: 24px;
             text-align: center;
             margin-bottom: 20px;
+            animation: bounceInDown 1s;
         }
+
         table {
             width: 100%;
             max-width: 600px;
@@ -29,20 +46,26 @@
             background-color: #fff;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
+            animation: fadeInUp 1s;
         }
+
         th, td {
             padding: 15px;
             border-bottom: 1px solid #ddd;
             text-align: center;
+            animation: fadeInUp 1s;
         }
+
         th {
-            background-color: #3f51b5;
+            background-color: #007bff;
             color: #fff;
             font-size: 18px;
         }
+
         td {
             font-size: 16px;
         }
+
         input[type="number"] {
             width: 90%;
             padding: 10px;
@@ -52,41 +75,48 @@
             border-radius: 8px;
             box-sizing: border-box;
             font-size: 16px;
-            -moz-appearance: textfield;
+            animation: fadeInRight 1s;
         }
-        input[type="number"]:focus {
-            background-color: #d0d7e2;
-            outline: none;
-        }
+
+        /* הסרת החיצים מהתיבה */
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
+
         input[type="number"] {
-	    font-family: 'Alef', sans-serif;
             -moz-appearance: textfield;
         }
+
+        input[type="number"]:focus {
+            background-color: #d0d7e2;
+            outline: none;
+        }
+
         .hidden {
             display: none;
         }
+
         .button-container {
             position: absolute;
             top: 20px;
             right: 20px;
             display: flex;
             gap: 10px;
+            animation: fadeIn 2s;
         }
+
         .button-container button {
             background-color: transparent;
             border: none;
             cursor: pointer;
             font-size: 24px;
-            color: #3f51b5;
+            color: #007bff;
             position: relative;
         }
+
         .button-container button .tooltip {
-	    font-family: 'Alef', sans-serif;
             visibility: hidden;
             background-color: #333;
             color: #fff;
@@ -103,46 +133,91 @@
             white-space: nowrap;
             max-width: 150px;
             word-wrap: break-word;
+            font-family: 'Alef', sans-serif;
         }
+
         .button-container button:hover .tooltip {
             visibility: visible;
             opacity: 1;
         }
+
         .home-button {
             display: block;
             text-align: center;
             margin-bottom: 20px;
+            animation: fadeInLeft 1s;
         }
+
         .home-button a {
             text-decoration: none;
             font-size: 18px;
             color: #fff;
-            background-color: #3f51b5;
+            background-color: #007bff;
             padding: 10px 20px;
             border-radius: 5px;
         }
+
         .copy-icon {
             cursor: pointer;
-            color: #3f51b5;
+            color: #007bff;
+            animation: pulse 1.5s infinite;
         }
+
         .toggle-icon {
             cursor: pointer;
             font-size: 20px;
-            color: #3f51b5;
+            color: #007bff;
             margin-left: 10px;
             vertical-align: middle;
+            animation: rotateIn 1s;
+        }
+
+        /* עיצוב ההודעה */
+        #copyMessage {
+            display: none;
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            animation: fadeInDown 0.5s;
+        }
+
+        #copyMessage .close-btn {
+            cursor: pointer;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
 
+<!-- הודעת העתקה -->
+<div id="copyMessage">
+    הסכום הועתק בהצלחה! <span class="close-btn" onclick="closeMessage()">×</span>
+</div>
+
 <!-- לחצן "ראשי" -->
-<div class="home-button">
+<div class="home-button" data-aos="fade-left">
     <a href="index.html">ראשי</a>
 </div>
 
 <!-- לחצני שיתוף ושמירה -->
-<div class="button-container">
+<div class="button-container" data-aos="fade-right">
     <button onclick="saveResults()">
         <i class="fas fa-save"></i>
         <span class="tooltip">שמור תוצאה</span>
@@ -153,8 +228,8 @@
     </button>
 </div>
 
-<h2>עמלות אשראי</h2>
-<table id="resultsTable">
+<h2 data-aos="fade-down">עמלות אשראי</h2>
+<table id="resultsTable" data-aos="fade-up">
     <tr id="deferredRow">
         <td>
             <i id="deferredIcon" class="fas fa-toggle-off toggle-icon" onclick="toggleDeferredMonths()"></i>
@@ -203,11 +278,11 @@
     <tr id="deferredSection" class="hidden">
         <th colspan="2">עמלת תשלום דחוי</th>
     </tr>
-    <tr class="hidden"> <!-- תמיד מוסתרת -->
+    <tr class="hidden">
         <td>סכום ההתפשרות [ריבית]</td>
         <td id="defermentInterest">0.006</td>
     </tr>
-    <tr class="hidden" id="deferredAdditionRow"> <!-- תוספת דחוי -->
+    <tr class="hidden" id="deferredAdditionRow">
         <td>תוספת דחוי</td>
         <td id="deferredAddition"></td>
     </tr>
@@ -237,160 +312,186 @@
 
 <!-- הוספת html2canvas -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-function toggleDeferredMonths() {
-    const deferredIcon = document.getElementById('deferredIcon');
-    const deferredMonthsInput = document.getElementById('deferredMonths');
-    const deferredNoneText = document.getElementById('deferredNoneText');
-    const deferredRow = document.getElementById('deferredRow');
-    const deferredSection = document.getElementById('deferredSection');
-    const deferredAdditionRow = document.getElementById('deferredAdditionRow');
+    AOS.init();
 
-    if (deferredMonthsInput.classList.contains('hidden')) {
-        deferredIcon.classList.remove('fa-toggle-off');
-        deferredIcon.classList.add('fa-toggle-on');
-        deferredMonthsInput.classList.remove('hidden');
-        deferredNoneText.classList.add('hidden');
-        deferredSection.classList.remove('hidden');
-        deferredAdditionRow.classList.remove('hidden'); // הצגת השורה תוספת דחוי
-    } else {
-        deferredIcon.classList.remove('fa-toggle-on');
-        deferredIcon.classList.add('fa-toggle-off');
-        deferredMonthsInput.classList.add('hidden');
-        deferredNoneText.classList.remove('hidden');
-        deferredMonthsInput.value = "";
-        deferredSection.classList.add('hidden');
-        deferredAdditionRow.classList.add('hidden'); // הסתרת השורה תוספת דחוי
-        calculate();
-    }
-}
+    function toggleDeferredMonths() {
+        const deferredIcon = document.getElementById('deferredIcon');
+        const deferredMonthsInput = document.getElementById('deferredMonths');
+        const deferredNoneText = document.getElementById('deferredNoneText');
+        const deferredRow = document.getElementById('deferredRow');
+        const deferredSection = document.getElementById('deferredSection');
+        const deferredAdditionRow = document.getElementById('deferredAdditionRow');
 
-function calculate() {
-    const purchaseAmount = parseFloat(document.getElementById("purchaseAmount").value) || 0;
-    const installments = parseFloat(document.getElementById("installments").value) || 0;
-    const deferredMonths = parseFloat(document.getElementById("deferredMonths").value) || 0;
-    const annualInterest = 7.4 / 100;
-    const defermentInterest = 0.006;
-
-    const deferredSection = document.getElementById("deferredSection");
-    const deferredAdditionRow = document.getElementById("deferredAdditionRow");
-
-    if (deferredMonths === 0) {
-        deferredSection.classList.add('hidden');
-        deferredAdditionRow.classList.add('hidden');
-    } else {
-        deferredSection.classList.remove('hidden');
-        deferredAdditionRow.classList.remove('hidden');
-    }
-
-    if (purchaseAmount > 0 && installments > 0) {
-        const totalMonths = installments + deferredMonths;
-        const monthlyInterest = Math.pow((annualInterest + 1), (1/12)) - 1;
-        const paymentAmount = Math.abs(-purchaseAmount * (monthlyInterest / (1 - Math.pow(1 + monthlyInterest, -installments))));
-        const totalAmountCollected = Math.abs(paymentAmount * installments);
-        const paymentAddition = totalAmountCollected - purchaseAmount;
-        const deferredAddition = purchaseAmount * defermentInterest * deferredMonths;
-        const totalAdditions = paymentAddition + deferredAddition;
-        const amountBeforeFee = purchaseAmount + totalAdditions;
-        let clearingFee;
-        let finalAmount;
-
-        if (totalMonths < 3) {
-            clearingFee = purchaseAmount / 100;
-            finalAmount = purchaseAmount + clearingFee;
-
-            document.querySelectorAll(".result-row").forEach(row => row.classList.add('hidden'));
-            document.getElementById("clearingFee").textContent = clearingFee.toFixed(2);
-            document.getElementById("finalAmountText").textContent = finalAmount.toFixed(2);
-            document.getElementById("clearingFee").parentNode.classList.remove('hidden');
-            document.getElementById("finalAmountText").parentNode.parentNode.classList.remove('hidden');
+        if (deferredMonthsInput.classList.contains('hidden')) {
+            deferredIcon.classList.remove('fa-toggle-off');
+            deferredIcon.classList.add('fa-toggle-on');
+            deferredMonthsInput.classList.remove('hidden');
+            deferredNoneText.classList.add('hidden');
+            deferredSection.classList.remove('hidden');
         } else {
-            clearingFee = amountBeforeFee / 100;
-            finalAmount = amountBeforeFee + clearingFee;
-
-            document.querySelectorAll(".result-row").forEach(row => row.classList.remove('hidden'));
-            document.getElementById("totalMonths").textContent = totalMonths.toFixed(2);
-            document.getElementById("monthlyInterest").textContent = (monthlyInterest * 100).toFixed(2) + '%';
-            document.getElementById("paymentAmount").textContent = paymentAmount.toFixed(2);
-            document.getElementById("totalAmountCollected").textContent = totalAmountCollected.toFixed(2);
-            document.getElementById("paymentAddition").textContent = paymentAddition.toFixed(2);
-            document.getElementById("deferredAddition").textContent = deferredAddition.toFixed(2);
-            document.getElementById("totalAdditions").textContent = totalAdditions.toFixed(2);
-            document.getElementById("amountBeforeFee").textContent = amountBeforeFee.toFixed(2);
-            document.getElementById("clearingFee").textContent = clearingFee.toFixed(2);
-            document.getElementById("finalAmountText").textContent = finalAmount.toFixed(2);
+            deferredIcon.classList.remove('fa-toggle-on');
+            deferredIcon.classList.add('fa-toggle-off');
+            deferredMonthsInput.classList.add('hidden');
+            deferredNoneText.classList.remove('hidden');
+            deferredMonthsInput.value = "";
+            deferredSection.classList.add('hidden');
+            deferredAdditionRow.classList.add('hidden');
+            calculate();
         }
-    } else {
-        document.querySelectorAll(".result-row").forEach(row => row.classList.add('hidden'));
-    }
-}
-
-function shareResults() {
-    const deferredRow = document.getElementById('deferredRow');
-    const deferredIcon = document.getElementById('deferredIcon');
-
-    if (deferredIcon.classList.contains('fa-toggle-off')) {
-        deferredRow.classList.add('hidden');
     }
 
-    html2canvas(document.getElementById('resultsTable')).then(canvas => {
-        canvas.toBlob(blob => {
-            const url = URL.createObjectURL(blob);
+    function calculate() {
+        const purchaseAmount = parseFloat(document.getElementById("purchaseAmount").value) || 0;
+        const installments = parseFloat(document.getElementById("installments").value) || 0;
+        const deferredMonths = parseFloat(document.getElementById("deferredMonths").value) || 0;
+        const annualInterest = 7.4 / 100;
+        const defermentInterest = 0.006;
 
-            if (navigator.share) {
-                navigator.share({
-                    title: 'תוצאות חישוב סכום קניה',
-                    text: 'תוצאות החישוב כפי שנוצרו באתר.',
-                    files: [new File([blob], 'תוצאות.png', { type: 'image/png' })]
-                }).catch(console.error);
+        const deferredSection = document.getElementById("deferredSection");
+        const deferredAdditionRow = document.getElementById("deferredAdditionRow");
+
+        if (deferredMonths === 0) {
+            deferredSection.classList.add('hidden');
+            deferredAdditionRow.classList.add('hidden');
+        } else {
+            deferredSection.classList.remove('hidden');
+
+            // בדיקה אם יש מספר בתיבה
+            if (deferredMonths > 0) {
+                deferredAdditionRow.classList.remove('hidden');
             } else {
+                deferredAdditionRow.classList.add('hidden');
+            }
+        }
+
+        if (purchaseAmount > 0 && installments > 0) {
+            const totalMonths = installments + deferredMonths;
+            const monthlyInterest = Math.pow((annualInterest + 1), (1 / 12)) - 1;
+            const paymentAmount = Math.abs(-purchaseAmount * (monthlyInterest / (1 - Math.pow(1 + monthlyInterest, -installments))));
+            const totalAmountCollected = Math.abs(paymentAmount * installments);
+            const paymentAddition = totalAmountCollected - purchaseAmount;
+            const deferredAddition = purchaseAmount * defermentInterest * deferredMonths;
+            const totalAdditions = paymentAddition + deferredAddition;
+            const amountBeforeFee = purchaseAmount + totalAdditions;
+            let clearingFee;
+            let finalAmount;
+
+            if (totalMonths < 3) {
+                clearingFee = purchaseAmount / 100;
+                finalAmount = purchaseAmount + clearingFee;
+
+                document.querySelectorAll(".result-row").forEach(row => row.classList.add('hidden'));
+                document.getElementById("clearingFee").textContent = clearingFee.toFixed(2);
+                document.getElementById("finalAmountText").textContent = finalAmount.toFixed(2);
+                document.getElementById("clearingFee").parentNode.classList.remove('hidden');
+                document.getElementById("finalAmountText").parentNode.parentNode.classList.remove('hidden');
+            } else {
+                clearingFee = amountBeforeFee / 100;
+                finalAmount = amountBeforeFee + clearingFee;
+
+                document.querySelectorAll(".result-row").forEach(row => row.classList.remove('hidden'));
+                document.getElementById("totalMonths").textContent = totalMonths.toFixed(2);
+                document.getElementById("monthlyInterest").textContent = (monthlyInterest * 100).toFixed(2) + '%';
+                document.getElementById("paymentAmount").textContent = paymentAmount.toFixed(2);
+                document.getElementById("totalAmountCollected").textContent = totalAmountCollected.toFixed(2);
+                document.getElementById("paymentAddition").textContent = paymentAddition.toFixed(2);
+                document.getElementById("deferredAddition").textContent = deferredAddition.toFixed(2);
+                document.getElementById("totalAdditions").textContent = totalAdditions.toFixed(2);
+                document.getElementById("amountBeforeFee").textContent = amountBeforeFee.toFixed(2);
+                document.getElementById("clearingFee").textContent = clearingFee.toFixed(2);
+                document.getElementById("finalAmountText").textContent = finalAmount.toFixed(2);
+            }
+        } else {
+            document.querySelectorAll(".result-row").forEach(row => row.classList.add('hidden'));
+        }
+    }
+
+    function shareResults() {
+        const deferredRow = document.getElementById('deferredRow');
+        const deferredIcon = document.getElementById('deferredIcon');
+
+        if (deferredIcon.classList.contains('fa-toggle-off')) {
+            deferredRow.classList.add('hidden');
+        }
+
+        html2canvas(document.getElementById('resultsTable')).then(canvas => {
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'תוצאות חישוב סכום קניה',
+                        text: 'תוצאות החישוב כפי שנוצרו באתר.',
+                        files: [new File([blob], 'תוצאות.png', { type: 'image/png' })]
+                    }).catch(console.error);
+                } else {
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'תוצאות.png';
+                    a.click();
+                }
+
+                URL.revokeObjectURL(url);
+            });
+
+            if (deferredIcon.classList.contains('fa-toggle-off')) {
+                deferredRow.classList.remove('hidden');
+            }
+        });
+    }
+
+    function saveResults() {
+        const deferredRow = document.getElementById('deferredRow');
+        const deferredIcon = document.getElementById('deferredIcon');
+
+        if (deferredIcon.classList.contains('fa-toggle-off')) {
+            deferredRow.classList.add('hidden');
+        }
+
+        html2canvas(document.getElementById('resultsTable')).then(canvas => {
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+
                 const a = document.createElement('a');
                 a.href = url;
                 a.download = 'תוצאות.png';
                 a.click();
+
+                URL.revokeObjectURL(url);
+            });
+
+            if (deferredIcon.classList.contains('fa-toggle-off')) {
+                deferredRow.classList.remove('hidden');
             }
-
-            URL.revokeObjectURL(url);
         });
-
-        if (deferredIcon.classList.contains('fa-toggle-off')) {
-            deferredRow.classList.remove('hidden');
-        }
-    });
-}
-
-function saveResults() {
-    const deferredRow = document.getElementById('deferredRow');
-    const deferredIcon = document.getElementById('deferredIcon');
-
-    if (deferredIcon.classList.contains('fa-toggle-off')) {
-        deferredRow.classList.add('hidden');
     }
 
-    html2canvas(document.getElementById('resultsTable')).then(canvas => {
-        canvas.toBlob(blob => {
-            const url = URL.createObjectURL(blob);
-
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'תוצאות.png';
-            a.click();
-
-            URL.revokeObjectURL(url);
+    // פונקציה להעתקת טקסט עם הודעה מותאמת
+    function copyToClipboard(elementId) {
+        const text = document.getElementById(elementId).textContent;
+        navigator.clipboard.writeText(text).then(() => {
+            showMessage(); // הצגת הודעה
         });
+    }
 
-        if (deferredIcon.classList.contains('fa-toggle-off')) {
-            deferredRow.classList.remove('hidden');
-        }
-    });
-}
+    // הצגת הודעת העתקה
+    function showMessage() {
+        const message = document.getElementById("copyMessage");
+        message.style.display = "block"; // הצגת ההודעה
 
-function copyToClipboard(elementId) {
-    const text = document.getElementById(elementId).textContent;
-    navigator.clipboard.writeText(text).then(() => {
-        alert('הסכום הועתק בהצלחה!');
-    });
-}
+        setTimeout(() => {
+            closeMessage(); // סגירת ההודעה לאחר 2 שניות
+        }, 2000);
+    }
+
+    // סגירת הודעת העתקה
+    function closeMessage() {
+        const message = document.getElementById("copyMessage");
+        message.style.display = "none";
+    }
 </script>
 
 </body>
