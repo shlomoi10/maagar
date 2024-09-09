@@ -343,71 +343,65 @@
         }
     }
 
-    function calculate() {
-        const purchaseAmount = parseFloat(document.getElementById("purchaseAmount").value) || 0;
-        const installments = parseFloat(document.getElementById("installments").value) || 0;
-        const deferredMonths = parseFloat(document.getElementById("deferredMonths").value) || 0;
-        const annualInterest = 7.4 / 100;
-        const defermentInterest = 0.006;
+   function calculate() {
+    const purchaseAmount = parseFloat(document.getElementById("purchaseAmount").value) || 0;
+    const installments = parseFloat(document.getElementById("installments").value) || 0;
+    const deferredMonths = parseFloat(document.getElementById("deferredMonths").value) || 0;
+    const annualInterest = 7.4 / 100;
+    const defermentInterest = 0.006;
 
-        const deferredSection = document.getElementById("deferredSection");
-        const deferredAdditionRow = document.getElementById("deferredAdditionRow");
+    const deferredSection = document.getElementById("deferredSection");
+    const deferredAdditionRow = document.getElementById("deferredAdditionRow");
 
-        if (deferredMonths === 0) {
-            deferredSection.classList.add('hidden');
-            deferredAdditionRow.classList.add('hidden');
-        } else {
-            deferredSection.classList.remove('hidden');
+    const totalMonths = installments + deferredMonths;
 
-            // בדיקה אם יש מספר בתיבה
-            if (deferredMonths > 0) {
-                deferredAdditionRow.classList.remove('hidden');
-            } else {
-                deferredAdditionRow.classList.add('hidden');
-            }
-        }
-
-        if (purchaseAmount > 0 && installments > 0) {
-            const totalMonths = installments + deferredMonths;
-            const monthlyInterest = Math.pow((annualInterest + 1), (1 / 12)) - 1;
-            const paymentAmount = Math.abs(-purchaseAmount * (monthlyInterest / (1 - Math.pow(1 + monthlyInterest, -installments))));
-            const totalAmountCollected = Math.abs(paymentAmount * installments);
-            const paymentAddition = totalAmountCollected - purchaseAmount;
-            const deferredAddition = purchaseAmount * defermentInterest * deferredMonths;
-            const totalAdditions = paymentAddition + deferredAddition;
-            const amountBeforeFee = purchaseAmount + totalAdditions;
-            let clearingFee;
-            let finalAmount;
-
-            if (totalMonths < 4) {
-                clearingFee = purchaseAmount / 100;
-                finalAmount = purchaseAmount + clearingFee;
-
-                document.querySelectorAll(".result-row").forEach(row => row.classList.add('hidden'));
-                document.getElementById("clearingFee").textContent = clearingFee.toFixed(2);
-                document.getElementById("finalAmountText").textContent = finalAmount.toFixed(2);
-                document.getElementById("clearingFee").parentNode.classList.remove('hidden');
-                document.getElementById("finalAmountText").parentNode.parentNode.classList.remove('hidden');
-            } else {
-                clearingFee = amountBeforeFee / 100;
-                finalAmount = amountBeforeFee + clearingFee;
-
-                document.querySelectorAll(".result-row").forEach(row => row.classList.remove('hidden'));
-                document.getElementById("totalMonths").textContent = totalMonths.toFixed(2);
-                document.getElementById("monthlyInterest").textContent = (monthlyInterest * 100).toFixed(2) + '%';
-                document.getElementById("paymentAmount").textContent = paymentAmount.toFixed(2);
-                document.getElementById("totalAmountCollected").textContent = totalAmountCollected.toFixed(2);
-                document.getElementById("paymentAddition").textContent = paymentAddition.toFixed(2);
-                document.getElementById("deferredAddition").textContent = deferredAddition.toFixed(2);
-                document.getElementById("totalAdditions").textContent = totalAdditions.toFixed(2);
-                document.getElementById("amountBeforeFee").textContent = amountBeforeFee.toFixed(2);
-                document.getElementById("clearingFee").textContent = clearingFee.toFixed(2);
-                document.getElementById("finalAmountText").textContent = finalAmount.toFixed(2);
-            }
-        } else {
-            document.querySelectorAll(".result-row").forEach(row => row.classList.add('hidden'));
-        }
+    if (deferredMonths === 0 || totalMonths < 4) {
+        deferredAdditionRow.classList.add('hidden');
+    } else {
+        deferredSection.classList.remove('hidden');
+        deferredAdditionRow.classList.remove('hidden');
     }
+
+    if (purchaseAmount > 0 && installments > 0) {
+        const monthlyInterest = Math.pow((annualInterest + 1), (1 / 12)) - 1;
+        const paymentAmount = Math.abs(-purchaseAmount * (monthlyInterest / (1 - Math.pow(1 + monthlyInterest, -installments))));
+        const totalAmountCollected = Math.abs(paymentAmount * installments);
+        const paymentAddition = totalAmountCollected - purchaseAmount;
+        const deferredAddition = purchaseAmount * defermentInterest * deferredMonths;
+        const totalAdditions = paymentAddition + deferredAddition;
+        const amountBeforeFee = purchaseAmount + totalAdditions;
+        let clearingFee;
+        let finalAmount;
+
+        if (totalMonths < 4) {
+            clearingFee = purchaseAmount / 100;
+            finalAmount = purchaseAmount + clearingFee;
+
+            document.querySelectorAll(".result-row").forEach(row => row.classList.add('hidden'));
+            document.getElementById("clearingFee").textContent = clearingFee.toFixed(2);
+            document.getElementById("finalAmountText").textContent = finalAmount.toFixed(2);
+            document.getElementById("clearingFee").parentNode.classList.remove('hidden');
+            document.getElementById("finalAmountText").parentNode.parentNode.classList.remove('hidden');
+        } else {
+            clearingFee = amountBeforeFee / 100;
+            finalAmount = amountBeforeFee + clearingFee;
+
+            document.querySelectorAll(".result-row").forEach(row => row.classList.remove('hidden'));
+            document.getElementById("totalMonths").textContent = totalMonths.toFixed(2);
+            document.getElementById("monthlyInterest").textContent = (monthlyInterest * 100).toFixed(2) + '%';
+            document.getElementById("paymentAmount").textContent = paymentAmount.toFixed(2);
+            document.getElementById("totalAmountCollected").textContent = totalAmountCollected.toFixed(2);
+            document.getElementById("paymentAddition").textContent = paymentAddition.toFixed(2);
+            document.getElementById("deferredAddition").textContent = deferredAddition.toFixed(2);
+            document.getElementById("totalAdditions").textContent = totalAdditions.toFixed(2);
+            document.getElementById("amountBeforeFee").textContent = amountBeforeFee.toFixed(2);
+            document.getElementById("clearingFee").textContent = clearingFee.toFixed(2);
+            document.getElementById("finalAmountText").textContent = finalAmount.toFixed(2);
+        }
+    } else {
+        document.querySelectorAll(".result-row").forEach(row => row.classList.add('hidden'));
+    }
+}
 
     function shareResults() {
         const deferredRow = document.getElementById('deferredRow');
