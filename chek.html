@@ -7,6 +7,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Alef:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <style>
+#deferredRow {
+    display: none;
+}
+
         body {
             font-family: 'Alef', sans-serif;
             direction: rtl;
@@ -266,25 +270,26 @@
     };
 
     function addPaymentRow() {
-    const rowId = Date.now();
-    paymentRows.push({ id: rowId, amount: 0, payments: 0 });
+        const rowId = Date.now();
+        paymentRows.push({ id: rowId, amount: 0, payments: 0 });
 
-    const rowContainer = document.createElement('div');
-    rowContainer.classList.add('row-container');
-    rowContainer.setAttribute('id', 'row-' + rowId);
+        const rowContainer = document.createElement('div');
+        rowContainer.classList.add('row-container');
+        rowContainer.setAttribute('id', 'row-' + rowId);
 
-    rowContainer.innerHTML = `
-        <div class="row-inputs">
-            <input type="number" placeholder="סכום" oninput="updatePaymentRow(${rowId}, 'amount', this.value)" onkeydown="handleKeyPress(event)" />
-            <input type="number" placeholder="מספר תשלומים" oninput="updatePaymentRow(${rowId}, 'payments', this.value)" onkeydown="handleKeyPress(event)" />
-            <span class="delete-row-btn" onclick="deletePaymentRow(${rowId})">&times;</span>
-        </div>
-    `;
+        rowContainer.innerHTML = `
+            <div class="row-inputs">
+                <input type="number" placeholder="סכום" oninput="updatePaymentRow(${rowId}, 'amount', this.value)" onkeydown="handleKeyPress(event)" />
+                <input type="number" placeholder="מספר תשלומים" oninput="updatePaymentRow(${rowId}, 'payments', this.value)" onkeydown="handleKeyPress(event)" />
+                <span class="delete-row-btn" onclick="deletePaymentRow(${rowId})">&times;</span>
+            </div>
+        `;
 
-    document.getElementById('paymentRowsContainer').appendChild(rowContainer);
+        document.getElementById('paymentRowsContainer').appendChild(rowContainer);
 
-    updateDeleteButtons();
-}
+        updateDeleteButtons();
+    }
+
 
 function handleKeyPress(event) {
     if (event.key === 'Enter') {
@@ -328,7 +333,6 @@ function handleKeyPress(event) {
         document.getElementById('row-' + rowId).remove();
         updateCalculateButtonState();
     }
-
     function updateCalculateButtonState() {
         const filledRows = paymentRows.filter(row => row.amount > 0 && row.payments > 0);
         const calculateBtn = document.getElementById('calculate-btn');
@@ -339,92 +343,70 @@ function handleKeyPress(event) {
         }
     }
 
-function calculateResults() {
-    const groupedPayments = {};
-    let totalAdditions = 0;
-    let totalPurchaseAmount = 0;
-    let deferredPaymentTotal = 0;
+    function calculateResults() {
+        const groupedPayments = {};
+        let totalAdditions = 0;
+        let totalPurchaseAmount = 0;
+        let deferredPaymentTotal = 0;
 
-    const validRows = paymentRows.filter(row => row.amount > 0 && row.payments > 0);
+        const validRows = paymentRows.filter(row => row.amount > 0 && row.payments > 0);
 
-    validRows.forEach(row => {
-        if (groupedPayments[row.payments]) {
-            groupedPayments[row.payments] += row.amount;
-        } else {
-            groupedPayments[row.payments] = row.amount;
-        }
-    });
+        validRows.forEach(row => {
+            if (groupedPayments[row.payments]) {
+                groupedPayments[row.payments] += row.amount;
+            } else {
+                groupedPayments[row.payments] = row.amount;
+            }
+        });
 
     const resultsContainer = document.getElementById('resultsContainer');
-    resultsContainer.innerHTML = '';
+        resultsContainer.innerHTML = '';
 
-    // הוספת כותרת "פירוט תשלומים" ושורת "ריבית חודשית"
-    const detailsHeader = document.createElement('h3');
+        const detailsHeader = document.createElement('h3');
+        resultsContainer.appendChild(detailsHeader);
 
-    resultsContainer.appendChild(detailsHeader);
+        Object.keys(groupedPayments).forEach(payments => {
+            const amount = groupedPayments[payments];
+            const resultsTable = generateResultsTable(amount, payments);
+            resultsContainer.appendChild(resultsTable);
 
-    const interestRateRow = generateInterestRateRow();
-    resultsContainer.appendChild(interestRateRow);
+            const { paymentAddition } = calculatePaymentDetails(amount, payments);
+            totalAdditions += paymentAddition;
+            totalPurchaseAmount += amount;
+        });
 
-    // יצירת תוצאות לכל תשלום
-    Object.keys(groupedPayments).forEach(payments => {
-        const amount = groupedPayments[payments];
-        const resultsTable = generateResultsTable(amount, payments);
-        resultsContainer.appendChild(resultsTable);
+        if (deferredActive) {
+            const deferredMonths = parseFloat(document.getElementById('deferredMonths').value) || 0;
+            deferredPaymentTotal = deferredMonths * 0.006 * totalPurchaseAmount;
+        }
 
-        const { paymentAddition } = calculatePaymentDetails(amount, payments);
-        totalAdditions += paymentAddition;
-        totalPurchaseAmount += amount;
-    });
-
-    if (deferredActive) {
-        const deferredMonths = parseFloat(document.getElementById('deferredMonths').value) || 0;
-        deferredPaymentTotal = deferredMonths * 0.006 * totalPurchaseAmount;
+        updateTotalSection(totalAdditions, totalPurchaseAmount, deferredPaymentTotal);
     }
 
-    updateTotalSection(totalAdditions, totalPurchaseAmount, deferredPaymentTotal);
-}
+    function generateResultsTable(purchaseAmount, installments) {
+        const table = document.createElement('table');
+        table.innerHTML = `
+            <tr><th colspan="2">תוצאות עבור תשלום ${installments}</th></tr>
+            <tr><td>סך תשלום</td><td>${purchaseAmount}</td></tr>
+        `;
 
-// פונקציה שמייצרת את שורת "ריבית חודשית" שתוצג פעם אחת בלבד
-function generateInterestRateRow() {
-    const interestRow = document.createElement('table');
-    const { monthlyInterest } = calculatePaymentDetails(0, 1);  // לחשב ריבית חודשית פעם אחת
+        const { paymentAddition, totalAmountCollected } = calculatePaymentDetails(purchaseAmount, installments);
 
-    interestRow.innerHTML = `
-        <tr><th colspan="2">פירוט תשלומים</th></tr>
-        <tr><td>ריבית חודשית</td><td>${(monthlyInterest * 100).toFixed(2)}%</td></tr>
-    `;
-    
-    return interestRow;
-}
+        table.innerHTML += `
+            <tr><td>סכום כולל שייגבה</td><td>${totalAmountCollected.toFixed(2)}</td></tr>
+            <tr><td>תוספת ריבית</td><td>${paymentAddition.toFixed(2)}</td></tr>
+        `;
 
-// פונקציה שמייצרת את תוצאות התשלום עבור כל כמות תשלומים
-function generateResultsTable(purchaseAmount, installments) {
-    const table = document.createElement('table');
-    table.innerHTML = `
-        <tr><th colspan="2">תוצאות עבור תשלום ${installments}</th></tr>
-        <tr><td>סך תשלום</td><td>${purchaseAmount}</td></tr>
-    `;
-
-    const { paymentAddition, totalAmountCollected } = calculatePaymentDetails(purchaseAmount, installments);
-
-    table.innerHTML += `
-        <tr class="hidden"><td>גובה כל תשלום</td><td></td></tr>
-        <tr><td>סכום כולל שייגבה</td><td>${totalAmountCollected.toFixed(2)}</td></tr>
-        <tr><td>תוספת ריבית</td><td>${paymentAddition.toFixed(2)}</td></tr>
-    `;
-
-    return table;
-}
+        return table;
+    }
 
     function calculatePaymentDetails(purchaseAmount, installments) {
-        const annualInterest = 7.4 / 100;
-        const monthlyInterest = Math.pow((annualInterest + 1), (1/12)) - 1;
-        const paymentAmount = Math.abs(-purchaseAmount * (monthlyInterest / (1 - Math.pow(1 + monthlyInterest, -installments))));
-        const totalAmountCollected = Math.abs(paymentAmount * installments);
+        const monthlyInterest = 0.006; // 0.6% interest rate per month
+        const totalInterest = monthlyInterest * installments; 
+        const totalAmountCollected = purchaseAmount * (1 + totalInterest); 
         const paymentAddition = totalAmountCollected - purchaseAmount;
 
-        return { monthlyInterest, paymentAddition, totalAmountCollected };
+        return { paymentAddition, totalAmountCollected };
     }
 
     function updateTotalSection(totalAdditions, totalPurchaseAmount, deferredPaymentTotal) {
@@ -447,6 +429,7 @@ function generateResultsTable(purchaseAmount, installments) {
 
         totalSection.innerHTML = totalHTML;
     }
+
 
     function toggleDeferredMonths() {
         deferredActive = !deferredActive;
